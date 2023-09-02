@@ -1,0 +1,524 @@
+<!doctype html>
+<html>
+<head>
+    <title>PolarSVGedit</title>
+    <style>
+body {
+    background-color: #111;
+    color: #eee;
+}
+a {
+    text-decoration: underline;
+}
+#svgBox {
+    background-color: rgba(223,223,223,0.9);
+    background-image:
+        linear-gradient(45deg, #aaa 25%, transparent 0%, transparent 75%, #aaa 75%, #aaa),
+        linear-gradient(45deg, #aaa 25%, transparent 0%, transparent 75%, #aaa 75%, #aaa);
+    background-size: 40px 40px;
+    background-position: 0 0, 20px 20px;
+    float: left;
+}
+#svgCode {
+    background-color: #444;
+    float: right;
+    font-size: 1rem;
+}
+    </style>
+</head>
+<body onload="load()"  onkeydown="keydown(event)">
+    <h1>PolarSVGedit</h1>
+    <div id="options" style="background-color:rgba(127,127,255,0.3)">
+        <h3>Options:</h3>
+        <span style="background-color:rgba(127,127,255,0.3)">
+            width <input type="text" id="width" value="800" style="width:3em" />px 
+            * height <input type="text" id="height" value="600" style="width:3em" />px
+            <button onclick="newSvg()">set SVG-size</button>
+        </span> | 
+        <span style="background-color:rgba(127,127,255,0.3)">
+            Snap-Grid: 
+            <input type="radio" id="grid40" name="snapGrid" onchange="setGrid(40)" />
+            <label for="grid20">40 </label>
+            <input type="radio" id="grid20" name="snapGrid" onchange="setGrid(20)" />
+            <label for="grid20">20 </label>
+            <input type="radio" id="grid10" name="snapGrid" onchange="setGrid(10)" checked />
+            <label for="grid10">10 </label>
+            <input type="radio" id="grid5" name="snapGrid" onchange="setGrid(5)" />
+            <label for="grid5">5 </label>
+            <input type="radio" id="grid2" name="snapGrid" onchange="setGrid(2)" />
+            <label for="grid1">2 </label>
+            <input type="radio" id="grid1" name="snapGrid" onchange="setGrid(1)" />
+            <label for="grid1">1 </label>
+        </span> | 
+        <span>
+            <input type="color" id="color" name="color" value="#000000" onchange="setColor()" />
+            <label for="color">color</label>
+        </span> | 
+        <span style="background-color:rgba(127,127,255,0.3)">
+            Width: 
+            <input type="radio" id="width10" name="strokeWidth" onchange="setWidth(10)" />
+            <label for="width10">10 </label>
+            <input type="radio" id="width5" name="strokeWidth" onchange="setWidth(5)" />
+            <label for="width5">5 </label>
+            <input type="radio" id="width3" name="strokeWidth" onchange="setWidth(3)" checked />
+            <label for="width3">3 </label>
+            <input type="radio" id="width2" name="strokeWidth" onchange="setWidth(2)" />
+            <label for="width2">2 </label>
+            <input type="radio" id="width1" name="strokeWidth" onchange="setWidth(1)" />
+            <label for="width1">1 </label>
+        </span> | 
+    </div>
+    <div id="tools" style="background-color:rgba(127,255,127,0.3)">
+        <h3>Tools:</h3>
+        <a onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)">Path</a> | 
+        <a onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)">Ellipse</a> | 
+        <a onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)">Text</a>
+    </div>
+    <div id="toolOptions" style="background-color:rgba(255,255,127,0.3)">
+        <i>(Tool-Options)</i>
+    </div><br />
+    <div>
+        <div id="svgBox" onclick="draw(event)">
+        </div>
+        <textarea id="svgCode" rows="10" cols="72" oninput="svgPreview()"></textarea><br />
+    </div>
+    <hr style="clear:both;"/>
+    <p><code>ctrl+z</code> will undo your last change(s)</p>
+    <hr style="clear:both;" />
+    <h2>TODO for development</h2>
+    <h3>milestone</h3>
+    <ul>
+        <li><s>undo "ctrl+z"</s></li>
+        <li><s>quick-key "m" or "q" for tool-options (and tools?)</s></li>
+        <li><s>text</s></li>
+        <li><s>bug: duplicate elements on duplicate clicks - remember active object for edit?</s></li>
+        <li><s>change active element color on color-select</s></li>
+        <li><s>save with `ctrl+s`</s></li>
+    </ul>
+    <h3>optional ideas</h3>
+    <ul>
+        <li>Element-list with renaming-option!</li>
+        <li>Element-list with continue-edit-option!</li>
+        <li>fill-color ("none" must be selectable)</li>
+        <li><s>"h" and "v" in paths if applicable (and z?)</s></li>
+        <li>arc in paths</li>
+        <li>cubic bezier?</li>
+        <li>previews with mousemove?</li>
+        <li>symbols like arrow-heads</li>
+        <li>mdTeX in text-elements?</li>
+    </ul>
+    
+<script>
+var svgBox = document.getElementById('svgBox');
+var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+var svgOld = [];
+var svgCode = document.getElementById('svgCode');
+var grid = 10
+var actObj = null;
+var color = 'black';
+var fill = 'none';
+var tool = '';
+var toolOption = '';
+var oldXY = [0,0];
+var strokeWidth = 3;
+function newSvg() {
+    let width = document.getElementById('width').value;
+    let height = document.getElementById('height').value;
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', height);
+    svg.setAttribute('viewBox', '0 0 '+width+' '+height);
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    //svg.appendChild(rect);
+    svgBox.style.width = width+'px';
+    svgBox.style.height = height+'px';
+    // show:
+    svgBox.appendChild(svg);
+    svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
+}
+function load() {
+    newSvg();
+    document.getElementById('grid10').checked = true;
+    document.getElementById('width3').checked = true;
+    document.getElementById('color').value = '#000';
+}
+function setGrid(g) {
+    grid = g;
+}
+function setColor() {
+    color = document.getElementById('color').value;
+    if (actObj != null) {
+        if ((actObj.nodeName == 'path') || (actObj.nodeName == 'ellipse')) {
+            actObj.setAttribute('style', 'stroke: '+color+'; stroke-width: '+strokeWidth+'; fill:'+fill+';');
+        } else if ((actObj.nodeName == 'text')) {
+            actObj.setAttribute('style', 'text-anchor:right; fill:'+color+';');
+        }
+    }
+}
+function setWidth(sw) {
+    strokeWidth = sw;
+    if (actObj != null) {
+        if ((actObj.nodeName == 'path') || (actObj.nodeName == 'ellipse')) {
+            actObj.setAttribute('style', 'stroke: '+color+'; stroke-width: '+strokeWidth+'; fill:'+fill+';');
+        }
+    }
+}
+function setToolOption(o) {
+    toolOption = o;
+}
+function setTool(t) {
+    tool = t;
+    let i=1;
+    if (t=='path') {
+        let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        while (document.getElementById('path'+i)!=null) i++;
+        path.setAttribute('id', 'path'+i);
+        path.setAttribute('style', 'stroke: '+color+'; stroke-width: '+strokeWidth+'; fill:'+fill+';');
+        actObj = path;
+        let tO = document.getElementById('toolOptions');
+        tO.innerHTML = '<b>Path-Options:</b> ';
+        tO.innerHTML += '<input type="radio" id="pathM" name="pathOption" onchange="setToolOption(`m`)" checked />';
+        tO.innerHTML += '<label for="pathM"><u>M</u>ove To</label> | ';
+        tO.innerHTML += '<input type="radio" id="pathL" name="pathOption" onchange="setToolOption(`l`)" checked />';
+        tO.innerHTML += '<label for="pathL"><u>L</u>ine</label> | ';
+        tO.innerHTML += '<input type="radio" id="pathQ" name="pathOption" onchange="setToolOption(`q`)" />';
+        tO.innerHTML += '<label for="pathQ"><u>Q</u>uadratic Bezier (clicks: start, end, controlpoint[, end2, end3, ...])</label>';
+        toolOption = 'l';
+    }
+    else if (t=='ellipse') {
+        let ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        while (document.getElementById('ellipse'+i)!=null) i++;
+        ellipse.setAttribute('id', 'ellipse'+i);//TODO...
+        ellipse.setAttribute('style', 'stroke: '+color+'; stroke-width: '+strokeWidth+'; fill:'+fill+';');
+        actObj = ellipse;
+        let tO = document.getElementById('toolOptions');
+        tO.innerHTML = '<b>Ellipse:</b> no options; First click: center, next click(s): bounding-corner';
+        toolOption = '';
+    }
+    else if (t=='text') {
+        let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        while (document.getElementById('text'+i)!=null) i++;
+        text.setAttribute('id', 'text'+i);//TODO...
+        text.setAttribute('style', 'text-anchor:right; fill:'+color+';');
+        actObj = text;
+        let tO = document.getElementById('toolOptions');
+        tO.innerHTML = '<b>Text:</b> <input type="text" id="textContens" value="text" />';
+        toolOption = 'text';
+    }
+    oldXY = [0,0];
+}
+function drawPath(x, y) {
+    let i=1;
+    while (document.getElementById('path'+i)!=null) i++;
+    let path = document.getElementById('path'+(i-1));
+    let pathNew = path;
+    let dx = x-oldXY[0];
+    let dy = y-oldXY[1];
+    if (!path.hasAttribute('d')) {
+        path.setAttribute('d', 'M '+x+','+y);
+        oldXY = [x,y];
+    }
+    // m: Move To:
+    else if (toolOption=='m') {
+        pathNew.setAttribute('d', path.getAttribute('d')+' m '+dx+' '+dy);
+        setToolOption('l');
+        document.getElementById('pathL').checked = true;
+        oldXY = [x,y];
+    }
+    // q: Quadratic Bezier:
+    else if (toolOption=='q') {
+        if (oldXY.length==2) {
+            oldXY.push(x);
+            oldXY.push(y);
+        } else if (oldXY.length==3) {
+            pathNew.setAttribute('d', path.getAttribute('d')+' t '+dx+' '+dy);
+            oldXY = [x,y,'t'];
+        } else {
+            pathNew.setAttribute('d', path.getAttribute('d')+' q '+dx+' '+dy+','+(oldXY[2]-oldXY[0])+' '+(oldXY[3]-oldXY[1]));
+            oldXY = [oldXY[2],oldXY[3],'t'];
+        }
+    }
+    // l: Line To:
+    else {
+        if ( dx==0 ) {
+            pathNew.setAttribute('d', path.getAttribute('d')+' v '+dy);
+        } else if (dy == 0) {
+            pathNew.setAttribute('d', path.getAttribute('d')+' h '+dx);
+        } else {
+            pathNew.setAttribute('d', path.getAttribute('d')+' l '+dx+' '+dy);
+        }
+        oldXY = [x,y];
+    }
+    svg.replaceChild(pathNew, path);
+}
+function drawEllipse(x, y) {
+    let i=1;
+    while (document.getElementById('ellipse'+i)!=null) i++;
+    let ellipse = document.getElementById('ellipse'+(i-1));
+    if (!ellipse.hasAttribute('cx')) {
+        ellipse.setAttribute('cx', x);
+        ellipse.setAttribute('cy', y);
+    } else {
+        let rx = Math.abs(ellipse.getAttribute('cx')-x);
+        let ry = Math.abs(ellipse.getAttribute('cy')-y);
+        if (rx==0) rx=strokeWidth/2;
+        if (ry==0) ry=strokeWidth/2;
+        ellipse.setAttribute('rx', rx);
+        ellipse.setAttribute('ry', ry);
+    }
+}
+function drawText(x, y) {
+    let i=1;
+    while (document.getElementById('text'+i)!=null) i++;
+    let text = document.getElementById('text'+(i-1));
+    text.setAttribute('x', x);
+    text.setAttribute('y', y);
+    text.innerHTML = document.getElementById('textContens').value;
+}
+function svgPreview() {
+    let parser = new DOMParser();
+    let svgcode = document.getElementById('svgCode').value;
+    try{
+        let svgNewDoc = parser.parseFromString(svgcode, 'image/svg+xml');
+        const errorNode = svgNewDoc.querySelector('parsererror');
+        if (errorNode) {
+            console.log(errorNode);
+        } else {
+            svg.innerHTML = svgNewDoc.documentElement.innerHTML;
+            svgBox.replaceChild(svg, svgBox.firstChild);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+    //document.getElementById('svgView').innerHTML = svg;
+}
+function draw(e) {
+    if (actObj == null) {
+        alert('Choose tool first!');
+        return;
+    } else if (svg.querySelector(actObj.getAttribute('id')) == null) {
+        svg.appendChild(actObj);
+    }
+    let bound = svgBox.getBoundingClientRect();
+    let x = Math.round((e.clientX-bound.left)/grid)*grid;
+    let y = Math.round((e.clientY-bound.top)/grid)*grid;
+    svgOld.push(svg.innerHTML);
+    if (tool=='path') {
+        drawPath(x, y);
+    } else if (tool=='ellipse') {
+        drawEllipse(x, y);
+    } else if (tool=='text') {
+        drawText(x, y);
+    } else {
+        return;
+    }
+    // show:
+    svgBox.replaceChild(svg, svgBox.firstChild);
+    svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
+}
+function keydown(e) {
+    var evtobj = window.event? event : e
+    // undo with ctrl+z:
+    if (evtobj.keyCode == 90 && evtobj.ctrlKey) {
+        let innerHTML = svgOld.pop();
+        if (innerHTML != null) {
+            svg.innerHTML = innerHTML;
+            svgBox.replaceChild(svg, svgBox.firstChild);
+            actObj = null;
+            tool = '';
+            toolOptions = '';
+            document.getElementById('toolOptions').innerHTML = '(no tool selected)';
+            svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
+        }
+    } else if (String.fromCharCode(evtobj.keyCode)=='S' && evtobj.ctrlKey) {
+        e.preventDefault();
+        var base64doc = btoa(unescape(encodeURIComponent(svg.outerHTML))),
+            a = document.createElement('a'),
+            e = new MouseEvent('click');
+        a.download = 'svgDrawing.svg';
+        a.href = 'data:image/svg+xml;base64,' + base64doc;
+        a.dispatchEvent(e);
+    } else if (String.fromCharCode(evtobj.keyCode)=='M' && tool=='path') {
+        toolOption = 'm';
+    } else if (String.fromCharCode(evtobj.keyCode)=='L' && tool=='path') {
+        toolOption = 'l';
+    } else if (String.fromCharCode(evtobj.keyCode)=='Q' && tool=='path') {
+        toolOption = 'q';
+    }
+}
+</script>
+
+<hr />
+
+<details><summary>Snippets</summary>
+    <table style="border:1px solid black;">
+        <tr>
+            <th style="width:15%">Object</th>
+            <th style="width:15%">Example</th>
+            <th style="width:40%">Code</th>
+            <th style="width:30%">Info</th>
+        </tr>
+        <tr>
+            <td>Circle</td>
+            <td><svg><circle cx="100" cy="100" r="30" fill="red" /></svg></td>
+            <td><code>&lt;circle cx="100" cy="100" r="30" fill="red" /&gt;</code></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Ellipse</td>
+            <td><svg><ellipse cx="100" cy="50" rx="60" ry="30" fill="green"/></svg></td>
+            <td><code>&lt;ellipse cx="100" cy="50" rx="60" ry="30" fill="green"/&gt;</code></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Rectangle</td>
+            <td><svg><rect x="50" y="50" width="100" height="75" fill="#FF0" stroke="#000" stroke-width="10" /></svg></td>
+            <td><code>&lt;rect x="50" y="50" width="100" height="75" fill="#FF0" stroke="#000" stroke-width="10" /&gt;</code></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Path</td>
+            <td><svg><path d="M 10,100 L 50,50 v 50 h 70 c 0 0 30 0 30 -50" fill="none" stroke="rgb(255,153,102)" stroke-width="2"/></svg></td>
+            <td><code>&lt;path d="M 10,100 L 50,50 v 50 h 70 c 0 0 30 0 30 -50" fill="none" stroke="rgb(255,153,102)" stroke-width="2"/&gt;</code></td>
+            <td>
+                <ul>
+                <li>M = moveto</li>
+                <li>L = lineto</li>
+                <li>H = horizontal lineto</li>
+                <li>V = vertical lineto</li>
+                <li>C = curveto</li>
+                <li>S = smooth curveto</li>
+                <li>Q = quadratic Bézier curve</li>
+                <li>T = smooth quadratic Bézier curveto</li>
+                <li>A = elliptical Arc</li>
+                <li>Z = closepath</li>
+                </ul>
+                CAPS: absolute; lower: relative
+            </td>
+        </tr>
+
+        <tr>
+            <td>Path: Arc</td>
+            <td><svg><path d="M 50 50 A 10 40 0 0 0 70 50 A 5 40 0 0 0 60 50 A 10 40 0 0 0 80 50" stroke="red" fill="none" /></svg></td>
+            <td><code>&lt;path d="M 50 50 A 10 40 0 0 0 70 50 A 5 40 0 0 0 60 50 A 10 40 0 0 0 80 50" stroke="red" fill="none" /&gt;</code></td>
+            <td>
+                <p>Meaning of the numbers:</p>
+                <ol>
+                    <li>M: moveto</li>
+                    <li>85: x-startpoint</li>
+                    <li>350: y-startpoint</li>
+                    <li>A: arc (caps: Absolut)</li>
+                    <li>150: radius x-Axis</li>
+                    <li>180: radius y-Axis</li>
+                    <li>0: rotation x</li>
+                    <li>0: flag short (0) or long (1) was</li>
+                    <li>0: flag counter-clockwise</li>
+                    <li>280: x-endpoint</li>
+                    <li>79: y-endpoint</li>
+                </ol>
+                CAPS: absolute; lower: relative
+            </td>
+        </tr>
+        <tr>
+            <td>Bezier-path (quadratic)</td>
+            <td><svg>
+                <path d="M 100,10 Q 10,50 200,150" fill="none" stroke="blue"/>
+                <path d="M 100,10 10,50 200,150" fill="none" stroke="gray"/>
+            </svg></td>
+            <td><code>
+                &lt;path d="M 100,10 Q 10,50 200,150" fill="none" stroke="blue"/&gt;<br />
+                &lt;path d="M 100,10 10,50 200,150" fill="none" stroke="gray"/&gt;
+            </code></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Text</td>
+            <td><svg><text x="20" y="50" text-anchor="right" fill="currentColor">Testtext x<tspan dy="-0.4em" font-size="0.6em">2</tspan></text></svg></td>
+            <td><code>&lt;text x="20" y="50" text-anchor="right" fill="currentColor"&gt;Testtext x&lt;tspan dy="-0.4em" font-size="0.6em"&gt;2&lt;/tspan&gt;&lt;/text&gt;</code></td>
+            <td></td>
+        </tr>
+    </table>
+    <h3>Example</h3>
+    <img src="./../../../_static/test.svg" alt="svg-testimage" width="800" height="600" />
+</details>
+<details><summary>Symbols</summary>
+    <p><i>Hint: This details-page makes use of the deprecated <code>&lt;xmp&gt;</code>-tag. Let's hope that browsers keep supporting it.</i></p>
+    <p>Use these i.e. with: <code>&lt;use href="#measure" x="100" y="200"/&gt;</code></p>
+    <table style="border:1px solid black;">
+        <tr>
+            <th>Symbol</th>
+            <th>Example</th>
+            <th>Code</th>
+        </tr>
+        <tr>
+            <td>Arrowhead</td>
+            <td><svg>
+<defs>
+    <marker id="arrow" markerWidth="5" markerHeight="6" refX="4" refY="3" orient="auto-start-reverse">
+        <polygon points="0 0,5 3,0 6, 2 3"/>
+    </marker>
+</defs>
+<line x1="" y1="20" x2="50" y2="20" stroke="#0a0" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/></xmp>
+            </svg></td>
+            <td>
+<xmp><defs>
+    <marker id="arrow" markerWidth="5" markerHeight="6" refX="4" refY="3" orient="auto-start-reverse">
+        <polygon points="0 0,5 3,0 6, 2 3"/>
+    </marker>
+</defs>
+<line x1="" y1="50" x2="250" y2="50" stroke="#0a0" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/></xmp>
+            </td>
+        </tr>
+        <tr>
+            <td>Electron</td>
+            <td><svg>
+    <circle r="6" cx="7" cy="7" style="fill:none;stroke:blue;stroke-width:2"/>
+    <path d="m 3,7 h 8" fill="none" stroke="blue" stroke-width="2"/>
+            </svg></td>
+            <td>
+<xmp><symbol id="electron">
+    <circle r="6" cx="7" cy="7" style="fill:none;stroke:blue;stroke-width:2"/>
+    <path d="m 3,7 h 8" fill="none" stroke="blue" stroke-width="2"/>
+</symbol></xmp>
+            </td>
+        </tr>
+    </table>
+</details>
+<details><summary>Other</summary>
+    <p><i>Hint: This details-page makes use of the deprecated <code>&lt;xmp&gt;</code>-tag. Let's hope that browsers keep supporting it.</i></p>
+    <table style="border:1px solid black;">
+        <tr>
+            <th>What</th>
+            <th>Example</th>
+            <th>Code</th>
+            <th>Info</th>
+        </tr>
+        <tr>
+            <td>Formulas</td>
+            <td>
+<svg>
+<foreignObject width="150" height="60" x="10" y="10" style="color:#0a0">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>E</mi><mo>&#x0003D;</mo><mi>m</mi><mo>&#x022C5;</mo><msup><mrow><msub><mi>c</mi><mn>0</mn></msub></mrow><mn>2</mn></msup></mrow></math>
+</foreignObject>
+</svg>
+            </td>
+            <td>
+<xmp><foreignObject width="150" height="60" x="10" y="10" style="color:#0a0">
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline">
+        <mrow><mi>E</mi><mo>&#x0003D;</mo><mi>m</mi><mo>&#x022C5;</mo><msup>
+            <mrow><msub><mi>c</mi><mn>0</mn></msub>
+        </mrow><mn>2</mn></msup>
+    </mrow></math>
+</foreignObject></xmp>
+            </td>
+            <td>The MathML-Code can be created with the mdTeX-Cheatsheet</td>
+        </tr>
+    </table>
+</details>
+
+<hr />
+<p>PolarSVGedit v0.1.0 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+
+</body>
+
+</html>
