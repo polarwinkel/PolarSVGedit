@@ -11,7 +11,7 @@ A configurable grid is offered so it is very quick easy to get a good scetch.
 
 The SVG-Code is shown live in a textarea in which you can edit it right away. On every edit with a valid result you get the live-view of your SVG-Image.
 
-### Who should use this
+## Who should use this
 
 PolarSVGedit is a good editor for simple, but very quick and easy scetches.
 
