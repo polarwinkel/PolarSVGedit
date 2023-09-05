@@ -102,7 +102,7 @@ a {
         <li>Element-list with continue-edit-option!</li>
         <li>fill-color ("none" must be selectable)</li>
         <li><s>"h" and "v" in paths if applicable (and z?)</s></li>
-        <li>arc in paths</li>
+        <li><s>arc in paths</s></li>
         <li>cubic bezier?</li>
         <li>previews with mousemove?</li>
         <li>symbols like arrow-heads</li>
@@ -150,9 +150,9 @@ function setColor() {
     color = document.getElementById('color').value;
     if (actObj != null) {
         if ((actObj.nodeName == 'path') || (actObj.nodeName == 'ellipse')) {
-            actObj.setAttribute('style', 'stroke: '+color+'; stroke-width: '+strokeWidth+'; fill:'+fill+';');
+            actObj.setAttribute('stroke', color);
         } else if ((actObj.nodeName == 'text')) {
-            actObj.setAttribute('style', 'text-anchor:right; fill:'+color+';');
+            actObj.setAttribute('fill', color);
         }
     }
 }
@@ -160,7 +160,7 @@ function setWidth(sw) {
     strokeWidth = sw;
     if (actObj != null) {
         if ((actObj.nodeName == 'path') || (actObj.nodeName == 'ellipse')) {
-            actObj.setAttribute('style', 'stroke: '+color+'; stroke-width: '+strokeWidth+'; fill:'+fill+';');
+            actObj.setAttribute('stroke-width', strokeWidth);
         }
     }
 }
@@ -174,7 +174,9 @@ function setTool(t) {
         let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         while (document.getElementById('path'+i)!=null) i++;
         path.setAttribute('id', 'path'+i);
-        path.setAttribute('style', 'stroke: '+color+'; stroke-width: '+strokeWidth+'; fill:'+fill+';');
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', strokeWidth);
+        path.setAttribute('fill', fill);
         actObj = path;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<b>Path-Options:</b> ';
@@ -192,7 +194,9 @@ function setTool(t) {
         let ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
         while (document.getElementById('ellipse'+i)!=null) i++;
         ellipse.setAttribute('id', 'ellipse'+i);//TODO...
-        ellipse.setAttribute('style', 'stroke: '+color+'; stroke-width: '+strokeWidth+'; fill:'+fill+';');
+        ellipse.setAttribute('stroke', color);
+        ellipse.setAttribute('stroke-width', strokeWidth);
+        ellipse.setAttribute('fill', fill);
         actObj = ellipse;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<b>Ellipse:</b> no options; First click: center, next click(s): bounding-corner';
@@ -202,7 +206,8 @@ function setTool(t) {
         let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         while (document.getElementById('text'+i)!=null) i++;
         text.setAttribute('id', 'text'+i);//TODO...
-        text.setAttribute('style', 'text-anchor:right; fill:'+color+';');
+        text.setAttribute('text-anchor', 'right');
+        text.setAttribute('fill', color);
         actObj = text;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<b>Text:</b> <input type="text" id="textContens" value="text" />';
@@ -551,7 +556,7 @@ function keydown(e) {
 </details>
 
 <hr />
-<p>PolarSVGedit v0.2.0dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.2.0 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
