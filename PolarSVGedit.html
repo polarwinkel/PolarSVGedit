@@ -84,6 +84,7 @@ a {
     </div>
     <hr style="clear:both;"/>
     <p>refresh page for a fresh start (loosing all unsaved changes!) | <code>ctrl+z</code> will undo your last change(s) | <code>ctrl+s</code> will download your SVG as a file</p>
+    <p><a href="https://developer.mozilla.org/en-US/docs/Web/SVG" target="_blank">Mozilla-SVG-Documentation</a></p>
     <hr style="clear:both;" />
     <h2>TODO for development</h2>
     <h3>milestone</h3>
@@ -129,7 +130,7 @@ function newSvg() {
     svg.setAttribute('viewBox', '0 0 '+width+' '+height);
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-    //svg.appendChild(rect);
+    //svg.appendChild(rect); //background
     svgBox.style.width = width+'px';
     svgBox.style.height = height+'px';
     // show:
@@ -182,7 +183,9 @@ function setTool(t) {
         tO.innerHTML += '<input type="radio" id="pathL" name="pathOption" onchange="setToolOption(`l`)" checked />';
         tO.innerHTML += '<label for="pathL"><u>L</u>ine</label> | ';
         tO.innerHTML += '<input type="radio" id="pathQ" name="pathOption" onchange="setToolOption(`q`)" />';
-        tO.innerHTML += '<label for="pathQ"><u>Q</u>uadratic Bezier (clicks: start, end, controlpoint[, end2, end3, ...])</label>';
+        tO.innerHTML += '<label for="pathQ"><u>Q</u>uadratic Bezier (clicks: [start,] end, controlpoint[, end2, end3, ...])</label> | ';
+        tO.innerHTML += '<input type="radio" id="pathA" name="pathOption" onchange="setToolOption(`a`)" />';
+        tO.innerHTML += '<label for="pathQ"><u>A</u>rc (circular; clicks: [start,] end, radius (closer to start: clockwise; else: counter-clockwise)</label>';
         toolOption = 'l';
     }
     else if (t=='ellipse') {
@@ -228,14 +231,37 @@ function drawPath(x, y) {
     // q: Quadratic Bezier:
     else if (toolOption=='q') {
         if (oldXY.length==2) {
+            // set end-coordinates first
             oldXY.push(x);
             oldXY.push(y);
-        } else if (oldXY.length==3) {
-            pathNew.setAttribute('d', path.getAttribute('d')+' t '+dx+' '+dy);
-            oldXY = [x,y,'t'];
-        } else {
+        } else if (oldXY.length==4) {
+            // set control point and draw
             pathNew.setAttribute('d', path.getAttribute('d')+' q '+dx+' '+dy+','+(oldXY[2]-oldXY[0])+' '+(oldXY[3]-oldXY[1]));
             oldXY = [oldXY[2],oldXY[3],'t'];
+        } else if (oldXY.length==3) {
+            // continue with svg inferred control points
+            pathNew.setAttribute('d', path.getAttribute('d')+' t '+dx+' '+dy);
+            oldXY = [x,y,'t'];
+        }
+    }
+    // a: arc: (limited to circular arcs)
+    else if (toolOption=='a') {
+        if (oldXY.length==2) {
+            // set end-coordinates first
+            oldXY.push(x);
+            oldXY.push(y);
+        } else {
+            // set center of circular arc and draw
+            // set clockwise if radius-click closer to old coordinates, else counter-clockwise:
+            if (Math.sqrt(Math.pow(oldXY[0]-x,2)+Math.pow(oldXY[1]-y,2)) < Math.sqrt(Math.pow(oldXY[2]-x,2)+Math.pow(oldXY[3]-y,2))) {
+                var r = Math.round(Math.sqrt(Math.pow(oldXY[0]-x,2)+Math.pow(oldXY[1]-y,2)));
+                var clockwise = 1;
+            } else {
+                var r = Math.round(Math.sqrt(Math.pow(oldXY[2]-x,2)+Math.pow(oldXY[3]-y,2)));
+                var clockwise = 0;
+            }
+            pathNew.setAttribute('d', path.getAttribute('d')+' a '+r+' '+r+' 0 0 '+clockwise+' '+(oldXY[2]-oldXY[0])+' '+(oldXY[3]-oldXY[1]));
+            oldXY = [oldXY[2],oldXY[3]];
         }
     }
     // l: Line To:
@@ -338,12 +364,20 @@ function keydown(e) {
         a.download = 'svgDrawing.svg';
         a.href = 'data:image/svg+xml;base64,' + base64doc;
         a.dispatchEvent(e);
+    } else if (String.fromCharCode(evtobj.keyCode)=='P') {
+        setTool('path');
+    } else if (String.fromCharCode(evtobj.keyCode)=='E') {
+        setTool('ellipse');
+    } else if (String.fromCharCode(evtobj.keyCode)=='T') {
+        setTool('text');
     } else if (String.fromCharCode(evtobj.keyCode)=='M' && tool=='path') {
-        toolOption = 'm';
+        setToolOption('m');
     } else if (String.fromCharCode(evtobj.keyCode)=='L' && tool=='path') {
-        toolOption = 'l';
+        setToolOption('l');
     } else if (String.fromCharCode(evtobj.keyCode)=='Q' && tool=='path') {
-        toolOption = 'q';
+        setToolOption('q');
+    } else if (String.fromCharCode(evtobj.keyCode)=='A' && tool=='path') {
+        setToolOption('a');
     }
 }
 </script>
@@ -517,7 +551,7 @@ function keydown(e) {
 </details>
 
 <hr />
-<p>PolarSVGedit v0.1.0 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.2.0dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
