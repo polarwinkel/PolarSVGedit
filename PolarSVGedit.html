@@ -261,11 +261,21 @@ function drawPath(x, y) {
             if (Math.sqrt(Math.pow(oldXY[0]-x,2)+Math.pow(oldXY[1]-y,2)) < Math.sqrt(Math.pow(oldXY[2]-x,2)+Math.pow(oldXY[3]-y,2))) {
                 var r = Math.round(Math.sqrt(Math.pow(oldXY[0]-x,2)+Math.pow(oldXY[1]-y,2)));
                 var clockwise = 1;
+                if (Math.sqrt(Math.pow(oldXY[0]-x,2)+Math.pow(oldXY[1]-y,2)) <= (Math.sqrt(Math.pow(oldXY[0]-oldXY[2],2)+Math.pow(oldXY[1]-oldXY[3],2)))/2) {
+                    var large = 0;
+                } else {
+                    var large = 1;
+                }
             } else {
                 var r = Math.round(Math.sqrt(Math.pow(oldXY[2]-x,2)+Math.pow(oldXY[3]-y,2)));
                 var clockwise = 0;
+                if (Math.sqrt(Math.pow(oldXY[2]-x,2)+Math.pow(oldXY[3]-y,2)) <= (Math.sqrt(Math.pow(oldXY[0]-oldXY[2],2)+Math.pow(oldXY[1]-oldXY[3],2)))/2) {
+                    var large = 0;
+                } else {
+                    var large = 1;
+                }
             }
-            pathNew.setAttribute('d', path.getAttribute('d')+' a '+r+' '+r+' 0 0 '+clockwise+' '+(oldXY[2]-oldXY[0])+' '+(oldXY[3]-oldXY[1]));
+            pathNew.setAttribute('d', path.getAttribute('d')+' a '+r+' '+r+' 0 '+large+' '+clockwise+' '+(oldXY[2]-oldXY[0])+' '+(oldXY[3]-oldXY[1]));
             oldXY = [oldXY[2],oldXY[3]];
         }
     }
@@ -556,7 +566,7 @@ function keydown(e) {
 </details>
 
 <hr />
-<p>PolarSVGedit v0.2.0 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.2.0dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
