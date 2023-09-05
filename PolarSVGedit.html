@@ -70,9 +70,9 @@ a {
     </div>
     <div id="tools" style="background-color:rgba(127,255,127,0.3)">
         <h3>Tools:</h3>
-        <a onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)">Path</a> | 
-        <a onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)">Ellipse</a> | 
-        <a onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)">Text</a>
+        <a onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)"><u>P</u>ath</a> | 
+        <a onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)"><u>E</u>llipse</a> | 
+        <a onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)"><u>T</u>ext</a>
     </div>
     <div id="toolOptions" style="background-color:rgba(255,255,127,0.3)">
         <i>(Tool-Options)</i>
@@ -83,29 +83,29 @@ a {
         <textarea id="svgCode" rows="10" cols="72" oninput="svgPreview()"></textarea><br />
     </div>
     <hr style="clear:both;"/>
-    <p>refresh page for a fresh start (loosing all unsaved changes!) | <code>ctrl+z</code> will undo your last change(s) | <code>ctrl+s</code> will download your SVG as a file</p>
+    <p>select tool with underlined key | refresh page for a fresh start (loosing all unsaved changes!) | <code>ctrl+z</code> will undo your last change(s) | <code>ctrl+s</code> will download your SVG as a file</p>
     <p><a href="https://developer.mozilla.org/en-US/docs/Web/SVG" target="_blank">Mozilla-SVG-Documentation</a></p>
     <hr style="clear:both;" />
     <h2>TODO for development</h2>
     <h3>milestone</h3>
     <ul>
-        <li><s>undo "ctrl+z"</s></li>
-        <li><s>quick-key "m" or "q" for tool-options (and tools?)</s></li>
-        <li><s>text</s></li>
-        <li><s>bug: duplicate elements on duplicate clicks - remember active object for edit?</s></li>
-        <li><s>change active element color on color-select</s></li>
-        <li><s>save with `ctrl+s`</s></li>
+        <li><s>undo "ctrl+z"</s> done</li>
+        <li><s>quick-key "m" or "q" for tool-options (and tools?)</s> done</li>
+        <li><s>text</s> done</li>
+        <li><s>bug: duplicate elements on duplicate clicks - remember active object for edit?</s> done</li>
+        <li><s>change active element color on color-select</s> done</li>
+        <li><s>save with `ctrl+s`</s> done</li>
     </ul>
     <h3>optional ideas</h3>
     <ul>
         <li>Element-list with renaming-option!</li>
         <li>Element-list with continue-edit-option!</li>
-        <li>fill-color ("none" must be selectable)</li>
-        <li><s>"h" and "v" in paths if applicable (and z?)</s></li>
-        <li><s>arc in paths</s></li>
-        <li>cubic bezier?</li>
+        <li><s>fill-color ("none" must be selectable)</s> (not planned anymore)</li>
+        <li><s>"h" and "v" in paths if applicable (and z?)</s> done</li>
+        <li><s>arc in paths</s> done</li>
+        <li><s>cubic bezier?</s> (not planned anymore)</li>
         <li>previews with mousemove?</li>
-        <li>symbols like arrow-heads</li>
+        <li><s>symbols like arrow-heads</s> (not planned anymore)</li>
         <li>mdTeX in text-elements?</li>
     </ul>
     
@@ -185,9 +185,14 @@ function setTool(t) {
         tO.innerHTML += '<input type="radio" id="pathL" name="pathOption" onchange="setToolOption(`l`)" checked />';
         tO.innerHTML += '<label for="pathL"><u>L</u>ine</label> | ';
         tO.innerHTML += '<input type="radio" id="pathQ" name="pathOption" onchange="setToolOption(`q`)" />';
-        tO.innerHTML += '<label for="pathQ"><u>Q</u>uadratic Bezier (clicks: [start,] end, controlpoint[, end2, end3, ...])</label> | ';
+        tO.innerHTML += '<label for="pathQ"><u>Q</u>uadratic Bezier (clicks: [start,] end, controlpoint[, end2, ...])</label> | ';
         tO.innerHTML += '<input type="radio" id="pathA" name="pathOption" onchange="setToolOption(`a`)" />';
-        tO.innerHTML += '<label for="pathQ"><u>A</u>rc (circular; clicks: [start,] end, radius (closer to start: clockwise; else: counter-clockwise)</label>';
+        tO.innerHTML += '<label for="pathQ"><u>A</u>rc</label>';
+        tO.innerHTML += '<input type="checkbox" id="pathALarge" name="pathALarge" />';
+        tO.innerHTML += '<label for="pathALarge">large</label>';
+        tO.innerHTML += '<input type="checkbox" id="pathAClockwise" name="pathAClockwise" checked />';
+        tO.innerHTML += '<label for="pathALong">clockwise</label>';
+        tO.innerHTML += ' (circular; clicks: [start,] end, r)';
         toolOption = 'l';
     }
     else if (t=='ellipse') {
@@ -257,23 +262,16 @@ function drawPath(x, y) {
             oldXY.push(y);
         } else {
             // set center of circular arc and draw
-            // set clockwise if radius-click closer to old coordinates, else counter-clockwise:
-            if (Math.sqrt(Math.pow(oldXY[0]-x,2)+Math.pow(oldXY[1]-y,2)) < Math.sqrt(Math.pow(oldXY[2]-x,2)+Math.pow(oldXY[3]-y,2))) {
-                var r = Math.round(Math.sqrt(Math.pow(oldXY[0]-x,2)+Math.pow(oldXY[1]-y,2)));
-                var clockwise = 1;
-                if (Math.sqrt(Math.pow(oldXY[0]-x,2)+Math.pow(oldXY[1]-y,2)) <= (Math.sqrt(Math.pow(oldXY[0]-oldXY[2],2)+Math.pow(oldXY[1]-oldXY[3],2)))/2) {
-                    var large = 0;
-                } else {
-                    var large = 1;
-                }
+            let r = Math.round(Math.sqrt(Math.pow(oldXY[0]-x,2)+Math.pow(oldXY[1]-y,2)));
+            if (document.getElementById('pathALarge').checked) {
+                var large = 1;
             } else {
-                var r = Math.round(Math.sqrt(Math.pow(oldXY[2]-x,2)+Math.pow(oldXY[3]-y,2)));
+                var large = 0;
+            }
+            if (document.getElementById('pathAClockwise').checked) {
+                var clockwise = 1;
+            } else {
                 var clockwise = 0;
-                if (Math.sqrt(Math.pow(oldXY[2]-x,2)+Math.pow(oldXY[3]-y,2)) <= (Math.sqrt(Math.pow(oldXY[0]-oldXY[2],2)+Math.pow(oldXY[1]-oldXY[3],2)))/2) {
-                    var large = 0;
-                } else {
-                    var large = 1;
-                }
             }
             pathNew.setAttribute('d', path.getAttribute('d')+' a '+r+' '+r+' 0 '+large+' '+clockwise+' '+(oldXY[2]-oldXY[0])+' '+(oldXY[3]-oldXY[1]));
             oldXY = [oldXY[2],oldXY[3]];
