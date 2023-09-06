@@ -217,6 +217,7 @@ function setTool(t) {
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<b>Text:</b> <input type="text" id="textContens" value="text" />';
         toolOption = 'text';
+        document.getElementById('textContens').focus();
     }
     oldXY = [0,0];
 }
@@ -377,20 +378,22 @@ function keydown(e) {
         a.download = 'svgDrawing.svg';
         a.href = 'data:image/svg+xml;base64,' + base64doc;
         a.dispatchEvent(e);
-    } else if (String.fromCharCode(evtobj.keyCode)=='P') {
-        setTool('path');
-    } else if (String.fromCharCode(evtobj.keyCode)=='E') {
-        setTool('ellipse');
-    } else if (String.fromCharCode(evtobj.keyCode)=='T') {
-        setTool('text');
-    } else if (String.fromCharCode(evtobj.keyCode)=='M' && tool=='path') {
-        setToolOption('m');
-    } else if (String.fromCharCode(evtobj.keyCode)=='L' && tool=='path') {
-        setToolOption('l');
-    } else if (String.fromCharCode(evtobj.keyCode)=='Q' && tool=='path') {
-        setToolOption('q');
-    } else if (String.fromCharCode(evtobj.keyCode)=='A' && tool=='path') {
-        setToolOption('a');
+    } else if (document.activeElement != document.getElementById('textContens')) {
+        if (String.fromCharCode(evtobj.keyCode)=='P') {
+            setTool('path');
+        } else if (String.fromCharCode(evtobj.keyCode)=='E') {
+            setTool('ellipse');
+        } else if (String.fromCharCode(evtobj.keyCode)=='T') {
+            setTool('text');
+        } else if (String.fromCharCode(evtobj.keyCode)=='M' && tool=='path') {
+            setToolOption('m');
+        } else if (String.fromCharCode(evtobj.keyCode)=='L' && tool=='path') {
+            setToolOption('l');
+        } else if (String.fromCharCode(evtobj.keyCode)=='Q' && tool=='path') {
+            setToolOption('q');
+        } else if (String.fromCharCode(evtobj.keyCode)=='A' && tool=='path') {
+            setToolOption('a');
+        }
     }
 }
 </script>
