@@ -1,9 +1,9 @@
 # PolarSVGedit
 A very simple SVG-Editor to do the basics with the mouse and all details in code
 
-## Use it right now!
+## Use it online right now!
 
-[go to PolarSVGedit online editor](https://polarwinkel.github.io/PolarSVGedit/PolarSVGedit.html)
+[Check out the latest PolarSVGedit online live-editor!](https://polarwinkel.github.io/PolarSVGedit/PolarSVGedit.html)
 
 ## What is this?
 
@@ -17,10 +17,10 @@ The SVG-Code is shown live in a textarea in which you can edit it right away. On
 
 ## Who should use this?
 
-PolarSVGedit is a good editor for simple, but very quick and easy scetches.
+PolarSVGedit is a good editor for __simple, but very quick and easy drawings__. With a tiny little bit of practise the key-selection of the tools and mouse-selection of the coordinates will let you create __clean SVG-scetches as _fast_ as you would draw it on paper or a board!__
 
-For the edits with the very limited graphical user interface (gui) you will get clean and good readable SVG-code with relative coordinates when possible.
+For the edits with the very limited graphical user interface (gui) you will get __clean and good readable SVG-code__ with relative coordinates when possible.
 
-That way it is also a good tool to learn to code you own SVG!
+That way it is also a good tool to __learn to code you own SVG__!
 
-But there are very limited options in the gui, so for any more complex graphics enjoy unleashing the entire power of SVG by coding clean SVG youself - way beyond most gui-editors!
+But there are very limited options in the gui, so for any more complex graphics enjoy unleashing the entire power of SVG by __coding clean SVG youself with a live-view of you code-edits__ - way beyond most gui-editors!

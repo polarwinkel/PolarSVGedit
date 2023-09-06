@@ -83,8 +83,12 @@ a {
         <textarea id="svgCode" rows="10" cols="72" oninput="svgPreview()"></textarea><br />
     </div>
     <hr style="clear:both;"/>
-    <p>select tool with underlined key | refresh page for a fresh start (loosing all unsaved changes!) | <code>ctrl+z</code> will <a onclick="undo()">undo your last change</a>(s) | <code>ctrl+s</code> will <a onclick="save()">download your SVG as a file</a></p>
-    <p><a href="https://developer.mozilla.org/en-US/docs/Web/SVG" target="_blank">Mozilla-SVG-Documentation</a></p>
+    <ul>
+        <li>select tool with underlined key</li>
+        <li>refresh page for a fresh start (loosing all unsaved changes!)</li>
+        <li><code>ctrl+z</code> will <a onclick="undo()">undo your last change</a>(s)</li>
+        <li><code>ctrl+s</code> will <a onclick="save()">download your SVG as a file</a></li>
+    </ul>
 
     <hr style="clear:both;" />
     <h2>TODO for development</h2>
@@ -107,7 +111,7 @@ a {
         <li><s>cubic bezier?</s> (not planned anymore)</li>
         <li>previews with mousemove?</li>
         <li><s>symbols like arrow-heads</s> (not planned anymore)</li>
-        <li><s>mdTeX in text-elements?</s> would need a server; And some elements like $Delta;$lambda; can be created with html-codes as well.</li>
+        <li><s>mdTeX in text-elements?</s> would need a server; And some elements like &Delta;&lambda; can be created with html-codes (<code>&</code><code>Delta</code><code>;</code>...) as well.</li>
     </ul>
     
 <script>
@@ -414,6 +418,8 @@ function keydown(e) {
 
 <hr />
 
+<h2>Basics for <code>SVG</code>-coding</h2>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/SVG" target="_blank">Mozilla-SVG-Documentation</a></p>
 <details><summary>Snippets</summary>
     <table style="border:1px solid black;">
         <tr>
@@ -581,7 +587,7 @@ function keydown(e) {
 </details>
 
 <hr />
-<p>PolarSVGedit v0.2.1 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.2.1dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
