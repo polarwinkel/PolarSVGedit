@@ -66,7 +66,7 @@ a {
             <label for="width2">2 </label>
             <input type="radio" id="width1" name="strokeWidth" onchange="setWidth(1)" />
             <label for="width1">1 </label>
-        </span> | 
+        </span>
     </div>
     <div id="tools" style="background-color:rgba(127,255,127,0.3)">
         <h3>Tools:</h3>
@@ -83,8 +83,9 @@ a {
         <textarea id="svgCode" rows="10" cols="72" oninput="svgPreview()"></textarea><br />
     </div>
     <hr style="clear:both;"/>
-    <p>select tool with underlined key | refresh page for a fresh start (loosing all unsaved changes!) | <code>ctrl+z</code> will undo your last change(s) | <code>ctrl+s</code> will download your SVG as a file</p>
+    <p>select tool with underlined key | refresh page for a fresh start (loosing all unsaved changes!) | <code>ctrl+z</code> will <a onclick="undo()">undo your last change</a>(s) | <code>ctrl+s</code> will <a onclick="save()">download your SVG as a file</a></p>
     <p><a href="https://developer.mozilla.org/en-US/docs/Web/SVG" target="_blank">Mozilla-SVG-Documentation</a></p>
+
     <hr style="clear:both;" />
     <h2>TODO for development</h2>
     <h3>milestone</h3>
@@ -106,7 +107,7 @@ a {
         <li><s>cubic bezier?</s> (not planned anymore)</li>
         <li>previews with mousemove?</li>
         <li><s>symbols like arrow-heads</s> (not planned anymore)</li>
-        <li>mdTeX in text-elements?</li>
+        <li><s>mdTeX in text-elements?</s> would need a server; And some elements like $Delta;$lambda; can be created with html-codes as well.</li>
     </ul>
     
 <script>
@@ -221,8 +222,8 @@ function setTool(t) {
         actObj = text;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<b>Text:</b> <input type="text" id="textContens" value="text" /> | ';
-        tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="12" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
-        tO.innerHTML += '<output>12</output>'
+        tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+fontSize+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
+        tO.innerHTML += '<output>'+fontSize+'</output>'
         toolOption = 'text';
         document.getElementById('textContens').focus();
     }
@@ -364,28 +365,33 @@ function draw(e) {
     svgBox.replaceChild(svg, svgBox.firstChild);
     svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
 }
+function undo() {
+    let innerHTML = svgOld.pop();
+    if (innerHTML != null) {
+        svg.innerHTML = innerHTML;
+        svgBox.replaceChild(svg, svgBox.firstChild);
+        actObj = null;
+        tool = '';
+        toolOptions = '';
+        document.getElementById('toolOptions').innerHTML = '(no tool selected)';
+        svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
+    }
+}
+function save() {
+    var base64doc = btoa(unescape(encodeURIComponent(svg.outerHTML))),
+        a = document.createElement('a'),
+        e = new MouseEvent('click');
+    a.download = 'svgDrawing.svg';
+    a.href = 'data:image/svg+xml;base64,' + base64doc;
+    a.dispatchEvent(e);
+}
 function keydown(e) {
     var evtobj = window.event? event : e
-    // undo with ctrl+z:
     if (evtobj.keyCode == 90 && evtobj.ctrlKey) {
-        let innerHTML = svgOld.pop();
-        if (innerHTML != null) {
-            svg.innerHTML = innerHTML;
-            svgBox.replaceChild(svg, svgBox.firstChild);
-            actObj = null;
-            tool = '';
-            toolOptions = '';
-            document.getElementById('toolOptions').innerHTML = '(no tool selected)';
-            svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
-        }
+        undo();
     } else if (String.fromCharCode(evtobj.keyCode)=='S' && evtobj.ctrlKey) {
         e.preventDefault();
-        var base64doc = btoa(unescape(encodeURIComponent(svg.outerHTML))),
-            a = document.createElement('a'),
-            e = new MouseEvent('click');
-        a.download = 'svgDrawing.svg';
-        a.href = 'data:image/svg+xml;base64,' + base64doc;
-        a.dispatchEvent(e);
+        save();
     } else if ((document.activeElement != document.getElementById('textContens')) && (document.activeElement != document.getElementById('svgCode'))) {
         if (String.fromCharCode(evtobj.keyCode)=='P') {
             setTool('path');
@@ -575,7 +581,7 @@ function keydown(e) {
 </details>
 
 <hr />
-<p>PolarSVGedit v0.2.0dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.2.1 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
