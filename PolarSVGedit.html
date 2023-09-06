@@ -122,6 +122,7 @@ var tool = '';
 var toolOption = '';
 var oldXY = [0,0];
 var strokeWidth = 3;
+var fontSize = 12;
 function newSvg() {
     let width = document.getElementById('width').value;
     let height = document.getElementById('height').value;
@@ -163,6 +164,9 @@ function setWidth(sw) {
             actObj.setAttribute('stroke-width', strokeWidth);
         }
     }
+}
+function setFontSize(size) {
+    fontSize = size;
 }
 function setToolOption(o) {
     toolOption = o;
@@ -213,9 +217,12 @@ function setTool(t) {
         text.setAttribute('id', 'text'+i);//TODO...
         text.setAttribute('text-anchor', 'right');
         text.setAttribute('fill', color);
+        text.setAttribute('font-size', fontSize);
         actObj = text;
         let tO = document.getElementById('toolOptions');
-        tO.innerHTML = '<b>Text:</b> <input type="text" id="textContens" value="text" />';
+        tO.innerHTML = '<b>Text:</b> <input type="text" id="textContens" value="text" /> | ';
+        tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="12" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
+        tO.innerHTML += '<output>12</output>'
         toolOption = 'text';
         document.getElementById('textContens').focus();
     }
@@ -313,6 +320,7 @@ function drawText(x, y) {
     let text = document.getElementById('text'+(i-1));
     text.setAttribute('x', x);
     text.setAttribute('y', y);
+    text.setAttribute('font-size', fontSize);
     text.innerHTML = document.getElementById('textContens').value;
 }
 function svgPreview() {
@@ -378,7 +386,7 @@ function keydown(e) {
         a.download = 'svgDrawing.svg';
         a.href = 'data:image/svg+xml;base64,' + base64doc;
         a.dispatchEvent(e);
-    } else if (document.activeElement != document.getElementById('textContens')) {
+    } else if ((document.activeElement != document.getElementById('textContens')) && (document.activeElement != document.getElementById('svgCode'))) {
         if (String.fromCharCode(evtobj.keyCode)=='P') {
             setTool('path');
         } else if (String.fromCharCode(evtobj.keyCode)=='E') {
