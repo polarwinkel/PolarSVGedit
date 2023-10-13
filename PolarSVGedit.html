@@ -127,7 +127,7 @@ var tool = '';
 var toolOption = '';
 var oldXY = [0,0];
 var strokeWidth = 3;
-var fontSize = 12;
+var fontSize = 16;
 function newSvg() {
     let width = document.getElementById('width').value;
     let height = document.getElementById('height').value;
@@ -227,7 +227,7 @@ function setTool(t) {
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<b>Text:</b> <input type="text" id="textContens" value="text" /> | ';
         tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+fontSize+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
-        tO.innerHTML += '<output>'+fontSize+'</output>'
+        tO.innerHTML += '<output>'+fontSize+'px</output>'
         toolOption = 'text';
         document.getElementById('textContens').focus();
     }
