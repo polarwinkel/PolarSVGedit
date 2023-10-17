@@ -9,7 +9,7 @@ body {
     font-size: 1.2em;
 }
 a {
-    text-decoration: underline;
+    text-decoration: none;
 }
 div#container {
     display: flex;
@@ -29,8 +29,9 @@ div#svgBox {
     margin: 1em;
 }
 #svgCode {
-    background-color: #444;
+    background-color: #222;
     font-size: 1em;
+    color: #ccc;
     min-height: 20em;
     min-width: 72em;
     flex: 1;
@@ -82,13 +83,13 @@ div#svgBox {
     </div>
     <div id="tools" style="background-color:rgba(127,255,127,0.3)">
         <h3>Tools:</h3>
-        <a onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)"><u>P</u>ath</a> | 
-        <a onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)"><u>E</u>llipse</a> | 
-        <a onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)"><u>T</u>ext</a>
+        <a class="aTool" id="aPath" onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)"><u>P</u>ath</a> | 
+        <a class="aTool" id="aEllipse" onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)"><u>E</u>llipse</a> | 
+        <a class="aTool" id="aText" onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)"><u>T</u>ext</a>
     </div>
     <div id="toolOptions" style="background-color:rgba(255,255,127,0.3)">
         <i>(Tool-Options)</i>
-    </div><br />
+    </div>
     <div id="container">
         <div id="svgBox" onclick="draw(event)">
         </div>
@@ -139,7 +140,7 @@ var tool = '';
 var toolOption = '';
 var oldXY = [0,0];
 var strokeWidth = 3;
-var fontSize = 16;
+var fontSize = 20;
 function newSvg() {
     let width = document.getElementById('width').value;
     let height = document.getElementById('height').value;
@@ -187,11 +188,24 @@ function setFontSize(size) {
 }
 function setToolOption(o) {
     toolOption = o;
+    if (tool == 'path') {
+        document.getElementById(tool+o.toUpperCase()).checked = true;
+        if (o == 'q') {
+            document.getElementById('toolHint').innerHTML = ' || <i>click-order Quadratic Bezier: [start,] end, controlpoint[, end2, ...]</i>';
+        } else if (o == 'a') {
+            document.getElementById('toolHint').innerHTML = ' || <i>usage for Arc: type is circular; clicks: [start,] end, r</i>';
+        } else {
+            document.getElementById('toolHint').innerHTML = '';
+        }
+    }
 }
 function setTool(t) {
     tool = t;
     let i=1;
     if (t=='path') {
+        document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.6)';
+        document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
+        document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.3)';
         let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         while (document.getElementById('path'+i)!=null) i++;
         path.setAttribute('id', 'path'+i);
@@ -200,23 +214,25 @@ function setTool(t) {
         path.setAttribute('fill', fill);
         actObj = path;
         let tO = document.getElementById('toolOptions');
-        tO.innerHTML = '<b>Path-Options:</b> ';
-        tO.innerHTML += '<input type="radio" id="pathM" name="pathOption" onchange="setToolOption(`m`)" checked />';
+        tO.innerHTML = '<input type="radio" id="pathM" name="pathOption" onchange="setToolOption(`m`)" checked />';
         tO.innerHTML += '<label for="pathM"><u>M</u>ove To</label> | ';
         tO.innerHTML += '<input type="radio" id="pathL" name="pathOption" onchange="setToolOption(`l`)" checked />';
         tO.innerHTML += '<label for="pathL"><u>L</u>ine</label> | ';
         tO.innerHTML += '<input type="radio" id="pathQ" name="pathOption" onchange="setToolOption(`q`)" />';
-        tO.innerHTML += '<label for="pathQ"><u>Q</u>uadratic Bezier (clicks: [start,] end, controlpoint[, end2, ...])</label> | ';
+        tO.innerHTML += '<label for="pathQ"><u>Q</u>uadratic Bezier</label> | ';
         tO.innerHTML += '<input type="radio" id="pathA" name="pathOption" onchange="setToolOption(`a`)" />';
         tO.innerHTML += '<label for="pathQ"><u>A</u>rc</label>';
         tO.innerHTML += '<input type="checkbox" id="pathALarge" name="pathALarge" />';
         tO.innerHTML += '<label for="pathALarge">large</label>';
         tO.innerHTML += '<input type="checkbox" id="pathAClockwise" name="pathAClockwise" checked />';
         tO.innerHTML += '<label for="pathALong">clockwise</label>';
-        tO.innerHTML += ' (circular; clicks: [start,] end, r)';
+        tO.innerHTML += '<span id="toolHint"></span>'
         toolOption = 'l';
     }
     else if (t=='ellipse') {
+        document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.3)';
+        document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.6)';
+        document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.3)';
         let ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
         while (document.getElementById('ellipse'+i)!=null) i++;
         ellipse.setAttribute('id', 'ellipse'+i);//TODO...
@@ -225,10 +241,13 @@ function setTool(t) {
         ellipse.setAttribute('fill', fill);
         actObj = ellipse;
         let tO = document.getElementById('toolOptions');
-        tO.innerHTML = '<b>Ellipse:</b> no options; First click: center, next click(s): bounding-corner';
+        tO.innerHTML = 'First click: center, next click(s): bounding-corner';
         toolOption = '';
     }
     else if (t=='text') {
+        document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.3)';
+        document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
+        document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.6)';
         let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         while (document.getElementById('text'+i)!=null) i++;
         text.setAttribute('id', 'text'+i);//TODO...
@@ -237,7 +256,7 @@ function setTool(t) {
         text.setAttribute('font-size', fontSize);
         actObj = text;
         let tO = document.getElementById('toolOptions');
-        tO.innerHTML = '<b>Text:</b> <input type="text" id="textContens" value="text" /> | ';
+        tO.innerHTML = '<input type="text" id="textContens" placeholder="text" /> | ';
         tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+fontSize+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
         tO.innerHTML += '<output>'+fontSize+'px</output>'
         toolOption = 'text';
