@@ -218,7 +218,7 @@ function setTool(t) {
         ellipse.setAttribute('fill', fill);
         actObj = ellipse;
         let tO = document.getElementById('toolOptions');
-        tO.innerHTML = 'First click: center, next click(s): bounding-corner';
+        tO.innerHTML = '<i>First click: center, next click(s): bounding-corner</i>';
         toolOption = '';
     }
     else if (t=='text') {
@@ -236,6 +236,7 @@ function setTool(t) {
         tO.innerHTML = '<input type="text" id="textContens" placeholder="text" /> | ';
         tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+fontSize+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
         tO.innerHTML += '<output>'+fontSize+'px</output>'
+        tO.innerHTML += ' || <i>specials chars like &Delta;&lambda; can be created with html-codes (<code>&</code><code>Delta</code><code>;</code>...)</i>'
         toolOption = 'text';
         document.getElementById('textContens').focus();
     }
