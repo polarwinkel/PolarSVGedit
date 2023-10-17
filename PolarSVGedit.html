@@ -102,30 +102,7 @@ div#svgBox {
         <li><code>ctrl+z</code> will <a onclick="undo()" style="text-decoration: underline;">undo your last change</a>(s)</li>
         <li><code>ctrl+s</code> will <a onclick="save()" style="text-decoration: underline;">download your SVG as a file</a></li>
     </ul>
-
     <hr style="clear:both;" />
-    <h2>TODO for development</h2>
-    <h3>milestone</h3>
-    <ul>
-        <li><s>undo "ctrl+z"</s> done</li>
-        <li><s>quick-key "m" or "q" for tool-options (and tools?)</s> done</li>
-        <li><s>text</s> done</li>
-        <li><s>bug: duplicate elements on duplicate clicks - remember active object for edit?</s> done</li>
-        <li><s>change active element color on color-select</s> done</li>
-        <li><s>save with `ctrl+s`</s> done</li>
-    </ul>
-    <h3>optional ideas</h3>
-    <ul>
-        <li>Element-list with renaming-option!</li>
-        <li>Element-list with continue-edit-option!</li>
-        <li><s>fill-color ("none" must be selectable)</s> (not planned anymore)</li>
-        <li><s>"h" and "v" in paths if applicable (and z?)</s> done</li>
-        <li><s>arc in paths</s> done</li>
-        <li><s>cubic bezier?</s> (not planned anymore)</li>
-        <li>previews with mousemove?</li>
-        <li><s>symbols like arrow-heads</s> (not planned anymore)</li>
-        <li><s>mdTeX in text-elements?</s> would need a server; And some elements like &Delta;&lambda; can be created with html-codes (<code>&</code><code>Delta</code><code>;</code>...) as well.</li>
-    </ul>
     
 <script>
 var svgBox = document.getElementById('svgBox');
@@ -447,8 +424,6 @@ function keydown(e) {
 }
 </script>
 
-<hr />
-
 <h2>Basics for <code>SVG</code>-coding</h2>
 <p><a href="https://developer.mozilla.org/en-US/docs/Web/SVG" target="_blank">Mozilla-SVG-Documentation</a></p>
 <details><summary>Snippets</summary>
@@ -617,8 +592,32 @@ function keydown(e) {
     </table>
 </details>
 
+<hr>
+    <h2>TODO for development</h2>
+    <h3>milestone</h3>
+    <ul>
+        <li><s>undo "ctrl+z"</s> done</li>
+        <li><s>quick-key "m" or "q" for tool-options (and tools?)</s> done</li>
+        <li><s>text</s> done</li>
+        <li><s>bug: duplicate elements on duplicate clicks - remember active object for edit?</s> done</li>
+        <li><s>change active element color on color-select</s> done</li>
+        <li><s>save with `ctrl+s`</s> done</li>
+    </ul>
+    <h3>optional ideas</h3>
+    <ul>
+        <li>Element-list with renaming-option!</li>
+        <li>Element-list with continue-edit-option!</li>
+        <li><s>fill-color ("none" must be selectable)</s> (not planned anymore)</li>
+        <li><s>"h" and "v" in paths if applicable (and z?)</s> done</li>
+        <li><s>arc in paths</s> done</li>
+        <li><s>cubic bezier?</s> (not planned anymore)</li>
+        <li>previews with mousemove?</li>
+        <li><s>symbols like arrow-heads</s> (not planned anymore)</li>
+        <li><s>mdTeX in text-elements?</s> would need a server; And some elements like &Delta;&lambda; can be created with html-codes (<code>&</code><code>Delta</code><code>;</code>...) as well.</li>
+    </ul>
+
 <hr />
-<p>PolarSVGedit v0.2.1dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.3.1 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
