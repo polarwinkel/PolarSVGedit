@@ -62,7 +62,7 @@ div#svgBox {
             <label for="grid1">2 </label>
             <input type="radio" id="grid1" name="snapGrid" onchange="setGrid(1)" />
             <label for="grid1">1 </label>
-        </span> | 
+        </span> | | 
         <span>
             <input type="color" id="color" name="color" value="#000000" onchange="setColor()" />
             <label for="color">color</label>
@@ -83,9 +83,23 @@ div#svgBox {
     </div>
     <div id="tools" style="background-color:rgba(127,255,127,0.3)">
         <h3>Tools:</h3>
-        <a class="aTool" id="aPath" onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)"><u>P</u>ath</a> | 
-        <a class="aTool" id="aEllipse" onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)"><u>E</u>llipse</a> | 
-        <a class="aTool" id="aText" onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)"><u>T</u>ext</a>
+        <div style="display:flex;">
+            <div>
+                <a class="aTool" id="aPath" onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)"><u>P</u>ath</a> | 
+                <a class="aTool" id="aEllipse" onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)"><u>E</u>llipse</a> | 
+                <a class="aTool" id="aText" onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)"><u>T</u>ext</a>
+            </div>
+            &nbsp;||&nbsp;
+            <div>
+                <label for="objectName" placeholder="(unique id)">object name (unique id): </label>
+                <input type="text" id="objectName" name="objectName" onchange="objectName(this.value)" /> | 
+                <label for="objectSelect">objects: </label>
+                <select id="objectSelect" name="objectSelect" onchange="objectSelect(this.value)">
+                    <option value="">select to edit attributes:</option>
+                </select>
+                <button onclick="alert('TODO: implement this; delete objects in the code for now!')">delete</button>
+            </div>
+        </div>
     </div>
     <div id="toolOptions" style="background-color:rgba(255,255,127,0.3)">
         <i>(Tool-Options)</i>
@@ -174,6 +188,8 @@ function setToolOption(o) {
         } else {
             document.getElementById('toolHint').innerHTML = '';
         }
+    } else {
+        document.getElementById('toolOptions').innerHTML = '<i>(Tool-Options)</i>';
     }
 }
 function setTool(t) {
@@ -183,13 +199,13 @@ function setTool(t) {
         document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.6)';
         document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.3)';
-        let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        actObj = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         while (document.getElementById('path'+i)!=null) i++;
-        path.setAttribute('id', 'path'+i);
-        path.setAttribute('stroke', color);
-        path.setAttribute('stroke-width', strokeWidth);
-        path.setAttribute('fill', fill);
-        actObj = path;
+        actObj.setAttribute('id', 'path'+i);
+        actObj.setAttribute('stroke', color);
+        actObj.setAttribute('stroke-width', strokeWidth);
+        actObj.setAttribute('fill', fill);
+        document.getElementById('objectName').value = actObj.id;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<input type="radio" id="pathM" name="pathOption" onchange="setToolOption(`m`)" checked />';
         tO.innerHTML += '<label for="pathM"><u>M</u>ove To</label> | ';
@@ -210,13 +226,13 @@ function setTool(t) {
         document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.6)';
         document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.3)';
-        let ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        actObj = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
         while (document.getElementById('ellipse'+i)!=null) i++;
-        ellipse.setAttribute('id', 'ellipse'+i);//TODO...
-        ellipse.setAttribute('stroke', color);
-        ellipse.setAttribute('stroke-width', strokeWidth);
-        ellipse.setAttribute('fill', fill);
-        actObj = ellipse;
+        actObj.setAttribute('id', 'ellipse'+i);
+        actObj.setAttribute('stroke', color);
+        actObj.setAttribute('stroke-width', strokeWidth);
+        actObj.setAttribute('fill', fill);
+        document.getElementById('objectName').value = actObj.id;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<i>First click: center, next click(s): bounding-corner</i>';
         toolOption = '';
@@ -225,13 +241,13 @@ function setTool(t) {
         document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.6)';
-        let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        actObj = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         while (document.getElementById('text'+i)!=null) i++;
-        text.setAttribute('id', 'text'+i);//TODO...
-        text.setAttribute('text-anchor', 'right');
-        text.setAttribute('fill', color);
-        text.setAttribute('font-size', fontSize);
-        actObj = text;
+        actObj.setAttribute('id', 'text'+i);
+        actObj.setAttribute('text-anchor', 'right');
+        actObj.setAttribute('fill', color);
+        actObj.setAttribute('font-size', fontSize);
+        document.getElementById('objectName').value = actObj.id;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<input type="text" id="textContens" placeholder="text" /> | ';
         tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+fontSize+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
@@ -239,13 +255,69 @@ function setTool(t) {
         tO.innerHTML += ' || <i>specials chars like &Delta;&lambda; can be created with html-codes (<code>&</code><code>Delta</code><code>;</code>...)</i>'
         toolOption = 'text';
         document.getElementById('textContens').focus();
+    } else {
+        tool = '';
+        document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.3)';
+        document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
+        document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.3)';
+        setToolOption('');
     }
     oldXY = [0,0];
 }
+function objectName(oName) {
+    svgDom = new DOMParser().parseFromString(svg.innerHTML, 'text/xml');
+    // TODO: check for allowed value with RegEx
+    let exists = false;
+    let idList = [];
+    let children = svgDom.children;
+    for (var i=0; i<children.length; i++) {
+        if (oName == children[i].id) {
+            alert('id `'+oName+'` exists already!');
+            exists = true;
+            break;
+        } else {
+            idList.push(children[i].id);
+        }
+    }
+    if (!exists) {
+        let oS = document.getElementById('objectSelect');
+        for (var i=0; i<oS.options.length; i++) {
+            if (oS.options[i].value == actObj.id) {
+                oS.options[i].value = oName;
+                oS.options[i].innerHTML = oName;
+                oS.value = oName;
+            }
+        }
+        actObj.id = oName;
+    }
+    svgBox.replaceChild(svg, svgBox.firstChild);
+    svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
+}
+function objectSelect(oId) {
+    // selecting old objects is only for attribute changes since coordinate are not remembered
+    actObj = document.getElementById(oId);
+    document.getElementById('objectName').value = actObj.id;
+    setTool('');
+    oldXY = [0,0];
+    if (actObj.nodeName == 'path' || actObj.nodeName == 'ellipse') {
+        //color = actObj.stroke; not working because it is not a HTML-attribute?
+    } else if (actObj.nodeName = 'text') {
+        document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.3)';
+        document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
+        document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.6)';
+        //color = actObj.fill;
+        let tO = document.getElementById('toolOptions');
+        tO.innerHTML = '<input type="text" id="textContens" value="'+actObj.innerHTML+'" /> | ';
+        tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+actObj.fontSize+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
+        tO.innerHTML += '<output>'+actObj.fontSize+'px</output>'
+        tO.innerHTML += ' || <i>specials chars like &Delta;&lambda; can be created with html-codes (<code>&</code><code>Delta</code><code>;</code>...)</i>'
+        tool = 'text';
+        toolOption = 'text';
+    }
+    //document.getElementById('color').value = color;
+}
 function drawPath(x, y) {
-    let i=1;
-    while (document.getElementById('path'+i)!=null) i++;
-    let path = document.getElementById('path'+(i-1));
+    let path = actObj;
     let pathNew = path;
     let dx = x-oldXY[0];
     let dy = y-oldXY[1];
@@ -310,12 +382,10 @@ function drawPath(x, y) {
         }
         oldXY = [x,y];
     }
-    svg.replaceChild(pathNew, path);
+    //svg.replaceChild(pathNew, path);
 }
 function drawEllipse(x, y) {
-    let i=1;
-    while (document.getElementById('ellipse'+i)!=null) i++;
-    let ellipse = document.getElementById('ellipse'+(i-1));
+    let ellipse = actObj;
     if (!ellipse.hasAttribute('cx')) {
         ellipse.setAttribute('cx', x);
         ellipse.setAttribute('cy', y);
@@ -329,15 +399,14 @@ function drawEllipse(x, y) {
     }
 }
 function drawText(x, y) {
-    let i=1;
-    while (document.getElementById('text'+i)!=null) i++;
-    let text = document.getElementById('text'+(i-1));
+    let text = actObj;
     text.setAttribute('x', x);
     text.setAttribute('y', y);
     text.setAttribute('font-size', fontSize);
     text.innerHTML = document.getElementById('textContens').value;
 }
 function svgPreview() {
+    // shows the svg if possible on code edits
     let parser = new DOMParser();
     let svgcode = document.getElementById('svgCode').value;
     try{
@@ -355,11 +424,16 @@ function svgPreview() {
     //document.getElementById('svgView').innerHTML = svg;
 }
 function draw(e) {
+    // draw-event on mouse-click in svg-box
+    let created = false;
     if (actObj == null) {
         alert('Choose tool first!');
         return;
-    } else if (svg.querySelector(actObj.getAttribute('id')) == null) {
+    }
+    let element = document.getElementById(actObj.id);
+    if (!element) {
         svg.appendChild(actObj);
+        created = true;
     }
     let bound = svgBox.getBoundingClientRect();
     let x = Math.round((e.clientX-bound.left)/grid)*grid;
@@ -374,6 +448,14 @@ function draw(e) {
     } else {
         return;
     }
+    if (created) {
+        // add object to object-select-list
+        let opt = document.createElement('option');
+        opt.value = actObj.id;
+        opt.innerHTML = actObj.id;
+        document.getElementById('objectSelect').append(opt);
+        document.getElementById('objectSelect').value = opt.value;
+    }
     // show:
     svgBox.replaceChild(svg, svgBox.firstChild);
     svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
@@ -384,8 +466,7 @@ function undo() {
         svg.innerHTML = innerHTML;
         svgBox.replaceChild(svg, svgBox.firstChild);
         actObj = null;
-        tool = '';
-        toolOptions = '';
+        setTool('');
         document.getElementById('toolOptions').innerHTML = '(no tool selected)';
         svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
     }
@@ -405,7 +486,11 @@ function keydown(e) {
     } else if (String.fromCharCode(evtobj.keyCode)=='S' && evtobj.ctrlKey) {
         e.preventDefault();
         save();
-    } else if ((document.activeElement != document.getElementById('textContens')) && (document.activeElement != document.getElementById('svgCode'))) {
+    } else if (
+            (document.activeElement != document.getElementById('textContens')) && 
+            (document.activeElement != document.getElementById('svgCode')) && 
+            (document.activeElement != document.getElementById('objectName'))
+            ) {
         if (String.fromCharCode(evtobj.keyCode)=='P') {
             setTool('path');
         } else if (String.fromCharCode(evtobj.keyCode)=='E') {
@@ -535,7 +620,7 @@ function keydown(e) {
         <polygon points="0 0,5 3,0 6, 2 3"/>
     </marker>
 </defs>
-<line x1="" y1="20" x2="50" y2="20" stroke="#0a0" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/></xmp>
+<line x1="0" y1="20" x2="50" y2="20" stroke="#0a0" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/></xmp>
             </svg></td>
             <td>
 <xmp><defs>
@@ -543,7 +628,7 @@ function keydown(e) {
         <polygon points="0 0,5 3,0 6, 2 3"/>
     </marker>
 </defs>
-<line x1="" y1="50" x2="250" y2="50" stroke="#0a0" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/></xmp>
+<line x1="0" y1="50" x2="250" y2="50" stroke="#0a0" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/></xmp>
             </td>
         </tr>
         <tr>
@@ -607,8 +692,8 @@ function keydown(e) {
     </ul>
     <h3>optional ideas</h3>
     <ul>
-        <li>Element-list with renaming-option!</li>
-        <li>Element-list with continue-edit-option!</li>
+        <li><s>Element-list with renaming-option!</s> done</li>
+        <li><s>Element-list with continue-edit-option!</s> done (only attribute edits possible)</li>
         <li><s>fill-color ("none" must be selectable)</s> (not planned anymore)</li>
         <li><s>"h" and "v" in paths if applicable (and z?)</s> done</li>
         <li><s>arc in paths</s> done</li>
@@ -619,7 +704,7 @@ function keydown(e) {
     </ul>
 
 <hr />
-<p>PolarSVGedit v0.3.1dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.4.0 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
