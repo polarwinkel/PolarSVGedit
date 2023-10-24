@@ -300,21 +300,21 @@ function objectSelect(oId) {
     setTool('');
     oldXY = [0,0];
     if (actObj.nodeName == 'path' || actObj.nodeName == 'ellipse') {
-        //color = actObj.stroke; not working because it is not a HTML-attribute?
+        color = actObj.getAttribute('stroke'); // actObj.stroke works only with html-objects
     } else if (actObj.nodeName = 'text') {
         document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.6)';
-        //color = actObj.fill;
+        color = actObj.getAttribute('fill');
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<input type="text" id="textContens" value="'+actObj.innerHTML+'" /> | ';
-        tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+actObj.fontSize+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
-        tO.innerHTML += '<output>'+actObj.fontSize+'px</output>'
+        tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+actObj.getAttribute('font-size')+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
+        tO.innerHTML += '<output>'+actObj.getAttribute('font-size')+'px</output>'
         tO.innerHTML += ' || <i>specials chars like &Delta;&lambda; can be created with html-codes (<code>&</code><code>Delta</code><code>;</code>...)</i>'
         tool = 'text';
         toolOption = 'text';
     }
-    //document.getElementById('color').value = color;
+    document.getElementById('color').value = color;
 }
 function drawPath(x, y) {
     let path = actObj;
@@ -704,7 +704,7 @@ function keydown(e) {
     </ul>
 
 <hr />
-<p>PolarSVGedit v0.4.0 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.4.0dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
