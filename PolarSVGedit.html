@@ -7,18 +7,11 @@ body {
     background-color: #111;
     color: #eee;
     font-size: 1.2em;
+    font-family: sans-serif;
 }
-input {
+input, select, button, label {
     font-size: inherit;
-}
-select {
-    font-size: inherit;
-}
-button {
-    font-size: inherit;
-}
-label {
-    font-size: inherit;
+    font-family: inherit;
 }
 a {
     text-decoration: none;
@@ -56,8 +49,10 @@ div#svgBox {
     <div id="options" style="background-color:rgba(127,127,255,0.3)">
         <h3>Options:</h3>
         <span style="background-color:rgba(127,127,255,0.3)">
-            width <input type="text" id="width" value="800" style="width:3em" />px 
-            * height <input type="text" id="height" value="600" style="width:3em" />px
+            <label for="width">width:</label>
+            <input type="text" id="width" name="width" value="800" style="width:3em" />
+            * <label for="height">height:</label>
+            <input type="text" id="height" name="height" value="600" style="width:3em" />
             <button onclick="newSvg()">set SVG-size</button>
         </span> | 
         <span style="background-color:rgba(127,127,255,0.3)">
@@ -76,11 +71,11 @@ div#svgBox {
             <label for="grid1">1 </label>
         </span> | | 
         <span>
+            <label for="color">stroke: </label>
             <input type="color" id="color" name="color" value="#000000" onchange="setColor()" />
-            <label for="color">color</label>
         </span> | 
         <span style="background-color:rgba(127,127,255,0.3)">
-            Width: 
+            <label for="strokeWidth">width: </label>
             <input type="radio" id="width10" name="strokeWidth" onchange="setWidth(10)" />
             <label for="width10">10 </label>
             <input type="radio" id="width5" name="strokeWidth" onchange="setWidth(5)" />
