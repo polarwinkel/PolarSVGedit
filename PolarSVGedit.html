@@ -47,66 +47,73 @@ div#svgBox {
 <body onload="load()"  onkeydown="keydown(event)">
     <h1>PolarSVGedit</h1>
     <div id="options" style="background-color:rgba(127,127,255,0.3); display: flex; flex-flow: row wrap;">
-        <h3 style="flex-basis: 100%;">Options: </h3>
-        <div style="background-color:rgba(127,127,255,0.3)">
-            <label for="width">width:</label>
-            <input type="text" id="width" name="width" value="800" style="width:3em" />
-            * <label for="height">height:</label>
-            <input type="text" id="height" name="height" value="600" style="width:3em" />
-            <button onclick="newSvg()">set SVG-size</button>
-        </div> | 
-        <div style="background-color:rgba(127,127,255,0.3)">
-            <label for="snapGrid">snap-grid: </label>
-            <input type="radio" id="grid40" name="snapGrid" onchange="setGrid(40)" />
-            <label for="grid20">40 </label>
-            <input type="radio" id="grid20" name="snapGrid" onchange="setGrid(20)" />
-            <label for="grid20">20 </label>
-            <input type="radio" id="grid10" name="snapGrid" onchange="setGrid(10)" checked />
-            <label for="grid10">10 </label>
-            <input type="radio" id="grid5" name="snapGrid" onchange="setGrid(5)" />
-            <label for="grid5">5 </label>
-            <input type="radio" id="grid2" name="snapGrid" onchange="setGrid(2)" />
-            <label for="grid1">2 </label>
-            <input type="radio" id="grid1" name="snapGrid" onchange="setGrid(1)" />
-            <label for="grid1">1 </label>
-        </div> | | 
-        <div>
-            <label for="color">stroke: </label>
-            <input type="color" id="color" name="color" value="#000000" onchange="setColor()" />
-        </div> | 
-        <div style="background-color:rgba(127,127,255,0.3)">
-            <label for="strokeWidth">width: </label>
-            <input type="radio" id="width10" name="strokeWidth" onchange="setWidth(10)" />
-            <label for="width10">10 </label>
-            <input type="radio" id="width5" name="strokeWidth" onchange="setWidth(5)" />
-            <label for="width5">5 </label>
-            <input type="radio" id="width3" name="strokeWidth" onchange="setWidth(3)" checked />
-            <label for="width3">3 </label>
-            <input type="radio" id="width2" name="strokeWidth" onchange="setWidth(2)" />
-            <label for="width2">2 </label>
-            <input type="radio" id="width1" name="strokeWidth" onchange="setWidth(1)" />
-            <label for="width1">1 </label>
+        <h3 style="flex-basis: 100%; margin:0.3em;">Options: </h3>
+        <div style="background-color:rgba(127,127,255,0.3); margin:0.3em; padding:0.3em; display: flex; flex-flow: row wrap;">
+            <div>
+                <label for="width">width:</label>
+                <input type="text" id="width" name="width" value="800" style="width:3em" />
+                * <label for="height">height:</label>
+                <input type="text" id="height" name="height" value="600" style="width:3em" />
+                <button onclick="newSvg()">set SVG-size</button>
+            </div>&nbsp;&nbsp;|&nbsp;&nbsp;
+            <div>
+                <label for="snapGrid">snap-grid: </label>
+                <input type="radio" id="grid40" name="snapGrid" onchange="setGrid(40)" />
+                <label for="grid20">40 </label>
+                <input type="radio" id="grid20" name="snapGrid" onchange="setGrid(20)" />
+                <label for="grid20">20 </label>
+                <input type="radio" id="grid10" name="snapGrid" onchange="setGrid(10)" checked />
+                <label for="grid10">10 </label>
+                <input type="radio" id="grid5" name="snapGrid" onchange="setGrid(5)" />
+                <label for="grid5">5 </label>
+                <input type="radio" id="grid2" name="snapGrid" onchange="setGrid(2)" />
+                <label for="grid1">2 </label>
+                <input type="radio" id="grid1" name="snapGrid" onchange="setGrid(1)" />
+                <label for="grid1">1 </label>
+            </div>
+        </div>
+        <div style="background-color:rgba(127,255,127,0.3); margin:0.3em; padding:0.3em; display: flex; flex-flow: row wrap;">
+            <div>
+                <label for="color">stroke: </label>
+                <input type="color" id="color" name="color" value="#000000" onchange="setColor()" />
+            </div>&nbsp;&nbsp;|&nbsp;&nbsp;
+            <div>
+                <label for="strokeWidth">width: </label>
+                <input type="radio" id="width10" name="strokeWidth" onchange="setWidth(10)" />
+                <label for="width10">10 </label>
+                <input type="radio" id="width5" name="strokeWidth" onchange="setWidth(5)" />
+                <label for="width5">5 </label>
+                <input type="radio" id="width3" name="strokeWidth" onchange="setWidth(3)" checked />
+                <label for="width3">3 </label>
+                <input type="radio" id="width2" name="strokeWidth" onchange="setWidth(2)" />
+                <label for="width2">2 </label>
+                <input type="radio" id="width1" name="strokeWidth" onchange="setWidth(1)" />
+                <label for="width1">1 </label>
+            </div>
         </div>
     </div>
     <div id="tools" style="background-color:rgba(127,255,127,0.3); display: flex; flex-flow: row wrap;">
-        <h3 style="flex-basis: 100%;">Tools:</h3>
-        <div>
-            <a class="aTool" id="aPath" onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)"><u>P</u>ath</a> | 
-            <a class="aTool" id="aEllipse" onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)"><u>E</u>llipse</a> | 
-            <a class="aTool" id="aText" onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)"><u>T</u>ext</a>
+        <h3 style="flex-basis: 100%; margin:0.3em;">Tools:</h3>
+        <div style="background-color:rgba(127,255,127,0.3); margin:0.3em; padding:0.3em; display: flex; flex-flow: row wrap; font-size:1.2em;">
+            <div>
+                <a class="aTool" id="aPath" onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)"><u>P</u>ath</a> | 
+                <a class="aTool" id="aEllipse" onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)"><u>E</u>llipse</a> | 
+                <a class="aTool" id="aText" onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)"><u>T</u>ext</a>
+            </div>
         </div>
-        &nbsp;||&nbsp;
-        <div>
-            <label for="objectName" placeholder="(unique id)">object name (unique id): </label>
-            <input type="text" id="objectName" name="objectName" onchange="objectName(this.value)" /> | 
-            <label for="objectSelect">objects: </label>
-            <select id="objectSelect" name="objectSelect" onchange="objectSelect(this.value)">
-                <option value="">select to edit attributes:</option>
-            </select>
-            <button onclick="alert('TODO: implement this; delete objects in the code for now!')">delete</button>
+        <div style="background-color:rgba(127,255,127,0.3); margin:0.3em; padding:0.3em; display: flex; flex-flow: row wrap;">
+            <div>
+                <label for="objectName" placeholder="(unique id)">object id: </label>
+                <input type="text" id="objectName" name="objectName" onchange="objectName(this.value)" /> | 
+                <label for="objectSelect">objects: </label>
+                <select id="objectSelect" name="objectSelect" onchange="objectSelect(this.value)">
+                    <option value="">edit attributes:</option>
+                </select>
+                <button onclick="alert('TODO: implement this; delete objects in the code for now!')">delete</button>
+            </div>
         </div>
     </div>
-    <div id="toolOptions" style="background-color:rgba(255,255,127,0.3); display: flex; flex-flow: row wrap;">
+    <div id="toolOptions" style="background-color:rgba(255,255,127,0.3); display: flex; flex-flow: row wrap; padding: 0.2em;">
         <i>(Tool-Options)</i>
     </div>
     <div id="container">
