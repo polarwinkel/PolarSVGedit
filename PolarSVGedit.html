@@ -35,7 +35,7 @@ div#svgBox {
 }
 #svgCode {
     background-color: #222;
-    font-size: 1em;
+    font-size: 0.85em;
     color: #ccc;
     min-height: 20em;
     min-width: 72em;
@@ -46,17 +46,17 @@ div#svgBox {
 </head>
 <body onload="load()"  onkeydown="keydown(event)">
     <h1>PolarSVGedit</h1>
-    <div id="options" style="background-color:rgba(127,127,255,0.3)">
-        <h3>Options:</h3>
-        <span style="background-color:rgba(127,127,255,0.3)">
+    <div id="options" style="background-color:rgba(127,127,255,0.3); display: flex; flex-flow: row wrap;">
+        <h3 style="flex-basis: 100%;">Options: </h3>
+        <div style="background-color:rgba(127,127,255,0.3)">
             <label for="width">width:</label>
             <input type="text" id="width" name="width" value="800" style="width:3em" />
             * <label for="height">height:</label>
             <input type="text" id="height" name="height" value="600" style="width:3em" />
             <button onclick="newSvg()">set SVG-size</button>
-        </span> | 
-        <span style="background-color:rgba(127,127,255,0.3)">
-            Snap-Grid: 
+        </div> | 
+        <div style="background-color:rgba(127,127,255,0.3)">
+            <label for="snapGrid">snap-grid: </label>
             <input type="radio" id="grid40" name="snapGrid" onchange="setGrid(40)" />
             <label for="grid20">40 </label>
             <input type="radio" id="grid20" name="snapGrid" onchange="setGrid(20)" />
@@ -69,12 +69,12 @@ div#svgBox {
             <label for="grid1">2 </label>
             <input type="radio" id="grid1" name="snapGrid" onchange="setGrid(1)" />
             <label for="grid1">1 </label>
-        </span> | | 
-        <span>
+        </div> | | 
+        <div>
             <label for="color">stroke: </label>
             <input type="color" id="color" name="color" value="#000000" onchange="setColor()" />
-        </span> | 
-        <span style="background-color:rgba(127,127,255,0.3)">
+        </div> | 
+        <div style="background-color:rgba(127,127,255,0.3)">
             <label for="strokeWidth">width: </label>
             <input type="radio" id="width10" name="strokeWidth" onchange="setWidth(10)" />
             <label for="width10">10 </label>
@@ -86,29 +86,27 @@ div#svgBox {
             <label for="width2">2 </label>
             <input type="radio" id="width1" name="strokeWidth" onchange="setWidth(1)" />
             <label for="width1">1 </label>
-        </span>
-    </div>
-    <div id="tools" style="background-color:rgba(127,255,127,0.3)">
-        <h3>Tools:</h3>
-        <div style="display:flex;">
-            <div>
-                <a class="aTool" id="aPath" onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)"><u>P</u>ath</a> | 
-                <a class="aTool" id="aEllipse" onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)"><u>E</u>llipse</a> | 
-                <a class="aTool" id="aText" onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)"><u>T</u>ext</a>
-            </div>
-            &nbsp;||&nbsp;
-            <div>
-                <label for="objectName" placeholder="(unique id)">object name (unique id): </label>
-                <input type="text" id="objectName" name="objectName" onchange="objectName(this.value)" /> | 
-                <label for="objectSelect">objects: </label>
-                <select id="objectSelect" name="objectSelect" onchange="objectSelect(this.value)">
-                    <option value="">select to edit attributes:</option>
-                </select>
-                <button onclick="alert('TODO: implement this; delete objects in the code for now!')">delete</button>
-            </div>
         </div>
     </div>
-    <div id="toolOptions" style="background-color:rgba(255,255,127,0.3)">
+    <div id="tools" style="background-color:rgba(127,255,127,0.3); display: flex; flex-flow: row wrap;">
+        <h3 style="flex-basis: 100%;">Tools:</h3>
+        <div>
+            <a class="aTool" id="aPath" onclick="setTool('path')" style="background-color:rgba(127,255,127,0.3)"><u>P</u>ath</a> | 
+            <a class="aTool" id="aEllipse" onclick="setTool('ellipse')" style="background-color:rgba(127,255,127,0.3)"><u>E</u>llipse</a> | 
+            <a class="aTool" id="aText" onclick="setTool('text')" style="background-color:rgba(127,255,127,0.3)"><u>T</u>ext</a>
+        </div>
+        &nbsp;||&nbsp;
+        <div>
+            <label for="objectName" placeholder="(unique id)">object name (unique id): </label>
+            <input type="text" id="objectName" name="objectName" onchange="objectName(this.value)" /> | 
+            <label for="objectSelect">objects: </label>
+            <select id="objectSelect" name="objectSelect" onchange="objectSelect(this.value)">
+                <option value="">select to edit attributes:</option>
+            </select>
+            <button onclick="alert('TODO: implement this; delete objects in the code for now!')">delete</button>
+        </div>
+    </div>
+    <div id="toolOptions" style="background-color:rgba(255,255,127,0.3); display: flex; flex-flow: row wrap;">
         <i>(Tool-Options)</i>
     </div>
     <div id="container">
