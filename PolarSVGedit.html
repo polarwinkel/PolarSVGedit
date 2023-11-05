@@ -117,7 +117,7 @@ div#svgBox {
         <i>(Tool-Options)</i>
     </div>
     <div id="container">
-        <div id="svgBox" onclick="draw(event)">
+        <div id="svgBox" onclick="draw(event)" onmousemove="mousePreview(event)" onmouseout="mousePreviewClear()">
         </div>
         <textarea id="svgCode" oninput="svgPreview()"></textarea>
     </div>
@@ -417,6 +417,31 @@ function drawText(x, y) {
     text.setAttribute('font-size', fontSize);
     text.innerHTML = document.getElementById('textContens').value;
 }
+function mousePreview(e) {
+    // show preview of the object to be drawn on mousemove
+    if (tool == 'path') {
+        let prePath = document.getElementById('preview');
+        if (!prePath) {
+            let prePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            prePath.setAttribute('id', 'preview');
+            prePath.setAttribute('stroke', '#aaa');
+            prePath.setAttribute('stroke-width', '1');
+            svg.appendChild(prePath);
+        }
+        let mBound = svgBox.getBoundingClientRect();
+        let px = Math.round((e.clientX-mBound.left)/grid)*grid;
+        let py = Math.round((e.clientY-mBound.top)/grid)*grid;
+        if (prePath && actObj.hasAttribute('d')) {
+            prePath.setAttribute('d', 'M '+oldXY[0]+','+oldXY[1]+' L '+px+','+py);
+        }
+    }
+}
+function mousePreviewClear() {
+    let preview = document.getElementById('preview');
+    if (preview) {
+        svg.removeChild(preview);
+    }
+}
 function svgPreview() {
     // shows the svg if possible on code edits
     let parser = new DOMParser();
@@ -710,7 +735,7 @@ function keydown(e) {
         <li><s>"h" and "v" in paths if applicable (and z?)</s> done</li>
         <li><s>arc in paths</s> done</li>
         <li><s>cubic bezier?</s> (not planned anymore)</li>
-        <li>previews with mousemove?</li>
+        <li><s>previews with mousemove?</s></li>
         <li>draw (paths) with arrow-keys and space (=click)?</li>
         <li><s>symbols like arrow-heads</s> (not planned anymore)</li>
         <li><s>mdTeX in text-elements?</s> would need a server; And some elements like &Delta;&lambda; can be created with html-codes (<code>&</code><code>Delta</code><code>;</code>...) as well.</li>
