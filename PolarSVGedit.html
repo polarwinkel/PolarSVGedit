@@ -54,7 +54,7 @@ div#svgBox {
                 <input type="text" id="width" name="width" value="800" style="width:3em" />
                 * <label for="height">height:</label>
                 <input type="text" id="height" name="height" value="600" style="width:3em" />
-                <button onclick="newSvg()">set SVG-size</button>
+                <button onclick="setSvgSize()">set SVG-size</button>
             </div>&nbsp;&nbsp;|&nbsp;&nbsp;
             <div>
                 <label for="snapGrid">snap-grid: </label>
@@ -144,7 +144,8 @@ var toolOption = '';
 var oldXY = [0,0];
 var strokeWidth = 3;
 var fontSize = 20;
-function newSvg() {
+function setSvgSize() {
+    // set size of new or existing svg
     let width = document.getElementById('width').value;
     let height = document.getElementById('height').value;
     svg.setAttribute('width', width);
@@ -160,15 +161,18 @@ function newSvg() {
     svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
 }
 function load() {
-    newSvg();
+    // init default settings
+    setSvgSize();
     document.getElementById('grid10').checked = true;
     document.getElementById('width3').checked = true;
     document.getElementById('color').value = '#000';
 }
 function setGrid(g) {
+    // set snapping grid size
     grid = g;
 }
 function setColor() {
+    // set brush color for active and new objects
     color = document.getElementById('color').value;
     if (actObj != null) {
         if ((actObj.nodeName == 'path') || (actObj.nodeName == 'ellipse')) {
@@ -179,6 +183,7 @@ function setColor() {
     }
 }
 function setWidth(sw) {
+    // set stroke-width for line tools
     strokeWidth = sw;
     if (actObj != null) {
         if ((actObj.nodeName == 'path') || (actObj.nodeName == 'ellipse')) {
@@ -187,9 +192,11 @@ function setWidth(sw) {
     }
 }
 function setFontSize(size) {
+    // set font-size for text-tool
     fontSize = size;
 }
 function setToolOption(o) {
+    // set tool-options (for path-tool)
     toolOption = o;
     if (tool == 'path') {
         document.getElementById(tool+o.toUpperCase()).checked = true;
@@ -205,6 +212,7 @@ function setToolOption(o) {
     }
 }
 function setTool(t) {
+    // set tool to be used ('path', 'ellipse', 'text' or '' for none)
     tool = t;
     let i=1;
     if (t=='path') {
@@ -278,6 +286,7 @@ function setTool(t) {
     mousePreviewClear()
 }
 function objectName(oName) {
+    // set id of active object
     svgDom = new DOMParser().parseFromString(svg.innerHTML, 'text/xml');
     // TODO: check for allowed value with RegEx
     let exists = false;
@@ -307,7 +316,7 @@ function objectName(oName) {
     svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
 }
 function objectSelect(oId) {
-    // selecting old objects is only for attribute changes since coordinate are not remembered
+    // selecting old objects; only for attribute changes since coordinate are not remembered
     actObj = document.getElementById(oId);
     document.getElementById('objectName').value = actObj.id;
     setTool('');
@@ -330,6 +339,7 @@ function objectSelect(oId) {
     document.getElementById('color').value = color;
 }
 function drawPath(x, y) {
+    // draw path with path-tool
     let path = actObj;
     let pathNew = path;
     let dx = x-oldXY[0];
@@ -398,7 +408,7 @@ function drawPath(x, y) {
     //svg.replaceChild(pathNew, path);
 }
 function drawEllipse(x, y) {
-    // draw ellipse
+    // draw ellipse with ellipse-tool
     let ellipse = actObj;
     if (!ellipse.hasAttribute('cx')) {
         ellipse.setAttribute('cx', x);
@@ -414,6 +424,7 @@ function drawEllipse(x, y) {
     }
 }
 function drawText(x, y) {
+    // draw text with text-tool
     let text = actObj;
     text.setAttribute('x', x);
     text.setAttribute('y', y);
@@ -476,13 +487,14 @@ function mousePreview(e) {
     svg.appendChild(pre);
 }
 function mousePreviewClear() {
+    // remove mouse-preview from svg
     let preview = document.getElementById('preview');
     if (preview) {
         svg.removeChild(preview);
     }
 }
 function svgPreview() {
-    // shows the svg if possible on code edits
+    // shows the svg if possible upon code edits
     let parser = new DOMParser();
     let svgcode = document.getElementById('svgCode').value;
     try{
@@ -538,6 +550,7 @@ function draw(e) {
     svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
 }
 function undo() {
+    // undo the latest change on active object; will deselect active tool due to missing coordinates to continue drawing
     let innerHTML = svgOld.pop();
     if (innerHTML != null) {
         svg.innerHTML = innerHTML;
@@ -549,6 +562,7 @@ function undo() {
     }
 }
 function save() {
+    // save svg-file to client
     var base64doc = btoa(unescape(encodeURIComponent(svg.outerHTML))),
         a = document.createElement('a'),
         e = new MouseEvent('click');
@@ -557,6 +571,7 @@ function save() {
     a.dispatchEvent(e);
 }
 function keydown(e) {
+    // catch relevant key-presses for controls like tool selects etc.
     var evtobj = window.event? event : e
     if (evtobj.keyCode == 90 && evtobj.ctrlKey) {
         undo();
@@ -783,7 +798,7 @@ function keydown(e) {
     </ul>
 
 <hr />
-<p>PolarSVGedit v0.4.0dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.5.0 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
