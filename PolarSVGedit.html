@@ -275,6 +275,7 @@ function setTool(t) {
         setToolOption('');
     }
     oldXY = [0,0];
+    mousePreviewClear()
 }
 function objectName(oName) {
     svgDom = new DOMParser().parseFromString(svg.innerHTML, 'text/xml');
@@ -397,6 +398,7 @@ function drawPath(x, y) {
     //svg.replaceChild(pathNew, path);
 }
 function drawEllipse(x, y) {
+    // draw ellipse
     let ellipse = actObj;
     if (!ellipse.hasAttribute('cx')) {
         ellipse.setAttribute('cx', x);
@@ -408,6 +410,7 @@ function drawEllipse(x, y) {
         if (ry==0) ry=strokeWidth/2;
         ellipse.setAttribute('rx', rx);
         ellipse.setAttribute('ry', ry);
+        setTool('ellipse');
     }
 }
 function drawText(x, y) {
@@ -416,25 +419,61 @@ function drawText(x, y) {
     text.setAttribute('y', y);
     text.setAttribute('font-size', fontSize);
     text.innerHTML = document.getElementById('textContens').value;
+    setTool('text');
 }
 function mousePreview(e) {
     // show preview of the object to be drawn on mousemove
+    if ((tool != 'path') && (tool != 'ellipse') && (tool != 'text')) {
+        return;
+    }
+    let mBound = svgBox.getBoundingClientRect();
+    let px = Math.round((e.clientX-mBound.left)/grid)*grid;
+    let py = Math.round((e.clientY-mBound.top)/grid)*grid;
+    var pre = document.getElementById('preview');
     if (tool == 'path') {
-        let prePath = document.getElementById('preview');
-        if (!prePath) {
-            let prePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            prePath.setAttribute('id', 'preview');
-            prePath.setAttribute('stroke', '#aaa');
-            prePath.setAttribute('stroke-width', '1');
-            svg.appendChild(prePath);
+        // preview for path-tool
+        if (!pre) {
+            var pre = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            pre.setAttribute('stroke', '#888');
+            pre.setAttribute('stroke-width', '2');
         }
-        let mBound = svgBox.getBoundingClientRect();
-        let px = Math.round((e.clientX-mBound.left)/grid)*grid;
-        let py = Math.round((e.clientY-mBound.top)/grid)*grid;
-        if (prePath && actObj.hasAttribute('d')) {
-            prePath.setAttribute('d', 'M '+oldXY[0]+','+oldXY[1]+' L '+px+','+py);
+        if (actObj.hasAttribute('d')) {
+            pre.setAttribute('d', 'M '+oldXY[0]+','+oldXY[1]+' L '+px+','+py);
         }
     }
+    else if (tool == 'ellipse') {
+        // preview for ellipse-tool
+        if (!pre) {
+            var pre = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            pre.setAttribute('stroke', '#888');
+            pre.setAttribute('fill', 'none');
+            pre.setAttribute('stroke-width', '2');
+        }
+        if (actObj.hasAttribute('cx')) {
+            pre.setAttribute('cx', actObj.cx.baseVal.value);
+            pre.setAttribute('cy', actObj.cy.baseVal.value);
+            let prx = Math.abs(actObj.getAttribute('cx')-px);
+            let pry = Math.abs(actObj.getAttribute('cy')-py);
+            if (prx==0) prx=strokeWidth/2;
+            if (pry==0) pry=strokeWidth/2;
+            pre.setAttribute('rx', prx);
+            pre.setAttribute('ry', pry);
+        }
+    }
+    else if (tool == 'text') {
+        // preview for text-tool
+        if (!pre) {
+            var pre = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            pre.setAttribute('text-anchor', 'right');
+            pre.setAttribute('fill', '#888');
+        }
+        pre.setAttribute('x', px);
+        pre.setAttribute('y', py);
+        pre.setAttribute('font-size', fontSize);
+        pre.innerHTML = document.getElementById('textContens').value;
+    }
+    pre.setAttribute('id', 'preview');
+    svg.appendChild(pre);
 }
 function mousePreviewClear() {
     let preview = document.getElementById('preview');
@@ -494,6 +533,7 @@ function draw(e) {
         document.getElementById('objectSelect').value = opt.value;
     }
     // show:
+    mousePreviewClear();
     svgBox.replaceChild(svg, svgBox.firstChild);
     svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
 }
@@ -534,6 +574,7 @@ function keydown(e) {
             setTool('ellipse');
         } else if (String.fromCharCode(evtobj.keyCode)=='T') {
             setTool('text');
+            document.getElementById('textContens').value = '';
         } else if (String.fromCharCode(evtobj.keyCode)=='M' && tool=='path') {
             setToolOption('m');
         } else if (String.fromCharCode(evtobj.keyCode)=='L' && tool=='path') {
