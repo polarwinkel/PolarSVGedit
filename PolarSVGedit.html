@@ -647,6 +647,10 @@ function keydown(e) {
         } else if (String.fromCharCode(evtobj.keyCode)=='T') {
             setTool('text');
             document.getElementById('textContens').value = '';
+            // hack to remove the 't' from the text input:
+            setTimeout(() => {
+                document.getElementById('textContens').value = '';
+            }, 10);
         } else if (String.fromCharCode(evtobj.keyCode)=='M' && tool=='path') {
             setToolOption('m');
         } else if (String.fromCharCode(evtobj.keyCode)=='L' && tool=='path') {
@@ -855,7 +859,7 @@ function keydown(e) {
     </ul>
 
 <hr />
-<p>PolarSVGedit v0.9.0dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.9.1 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
