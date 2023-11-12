@@ -117,7 +117,7 @@ div#svgBox {
         <i>(Tool-Options)</i>
     </div>
     <div id="container">
-        <div id="svgBox" onclick="draw(event)" onmousemove="mousePreview(event)" onmouseout="mousePreviewClear()">
+        <div id="svgBox" onclick="draw(event)" onmousemove="mousePreview(event)" onmouseleave="mousePreviewClear()">
         </div>
         <textarea id="svgCode" oninput="svgPreview()"></textarea>
     </div>
@@ -425,12 +425,15 @@ function drawEllipse(x, y) {
 }
 function drawText(x, y) {
     // draw text with text-tool
-    let text = actObj;
-    text.setAttribute('x', x);
-    text.setAttribute('y', y);
-    text.setAttribute('font-size', fontSize);
-    text.innerHTML = document.getElementById('textContens').value;
-    setTool('text');
+    let t = document.getElementById('textContens').value;
+    if (t != '') {
+        let text = actObj;
+        text.setAttribute('x', x);
+        text.setAttribute('y', y);
+        text.setAttribute('font-size', fontSize);
+        text.innerHTML = t;
+        setTool('text');
+    }
 }
 function mousePreview(e) {
     // show preview of the object to be drawn on mousemove
@@ -463,7 +466,7 @@ function mousePreview(e) {
                 if (oldXY.length==2) {
                     // show point for end-coordinates
                     pre.setAttribute('stroke-width', '4');
-                    pre.setAttribute('d', 'M '+(px-1)+','+py+' L '+(px+1)+','+py);
+                    pre.setAttribute('d', 'M '+(px-2)+','+py+' L '+(px+2)+','+py);
                 } else if (oldXY.length==4) {
                     // set control point and draw
                     pre.setAttribute('d', 'M '+oldXY[0]+','+oldXY[1]+' q '+(px-oldXY[0])+' '+(py-oldXY[1])+','+(oldXY[2]-oldXY[0])+' '+(oldXY[3]-oldXY[1]));
