@@ -142,6 +142,7 @@ var fill = 'none';
 var tool = '';
 var toolOption = '';
 var oldXY = [0,0];
+var toolXY = [-1,-1];
 var strokeWidth = 3;
 var fontSize = 20;
 function setSvgSize() {
@@ -435,14 +436,14 @@ function drawText(x, y) {
         setTool('text');
     }
 }
-function mousePreview(e) {
+function mousePreview(e, px=-1, py=-1) {
     // show preview of the object to be drawn on mousemove
     if ((tool != 'path') && (tool != 'ellipse') && (tool != 'text')) {
         return;
     }
     let mBound = svgBox.getBoundingClientRect();
-    let px = Math.round((e.clientX-mBound.left)/grid)*grid;
-    let py = Math.round((e.clientY-mBound.top)/grid)*grid;
+    if (px==-1) { px = Math.round((e.clientX-mBound.left)/grid)*grid };
+    if (py==-1) { py = Math.round((e.clientY-mBound.top)/grid)*grid };
     var pre = document.getElementById('preview');
     if (tool == 'path') {
         // preview for path-tool
@@ -568,7 +569,7 @@ function svgPreview() {
     }
     //document.getElementById('svgView').innerHTML = svg;
 }
-function draw(e) {
+function draw(e, x=-1, y=-1) {
     // draw-event on mouse-click in svg-box
     let created = false;
     if (actObj == null) {
@@ -581,8 +582,9 @@ function draw(e) {
         created = true;
     }
     let bound = svgBox.getBoundingClientRect();
-    let x = Math.round((e.clientX-bound.left)/grid)*grid;
-    let y = Math.round((e.clientY-bound.top)/grid)*grid;
+    if (x==-1) { x = Math.round((e.clientX-bound.left)/grid)*grid; }
+    if (y==-1) { y = Math.round((e.clientY-bound.top)/grid)*grid; }
+    toolXY = [x,y];
     svgOld.push(svg.innerHTML);
     if (tool=='path') {
         drawPath(x, y);
@@ -635,7 +637,7 @@ function keydown(e) {
     } else if (String.fromCharCode(evtobj.keyCode)=='S' && evtobj.ctrlKey) {
         e.preventDefault();
         save();
-    } else if (
+    } else if ( // keep key-functions if needed i.e. for typing
             (document.activeElement != document.getElementById('textContens')) && 
             (document.activeElement != document.getElementById('svgCode')) && 
             (document.activeElement != document.getElementById('objectName'))
@@ -645,12 +647,9 @@ function keydown(e) {
         } else if (String.fromCharCode(evtobj.keyCode)=='E') {
             setTool('ellipse');
         } else if (String.fromCharCode(evtobj.keyCode)=='T') {
+            e.preventDefault();
             setTool('text');
             document.getElementById('textContens').value = '';
-            // hack to remove the 't' from the text input:
-            setTimeout(() => {
-                document.getElementById('textContens').value = '';
-            }, 10);
         } else if (String.fromCharCode(evtobj.keyCode)=='M' && tool=='path') {
             setToolOption('m');
         } else if (String.fromCharCode(evtobj.keyCode)=='L' && tool=='path') {
@@ -659,6 +658,25 @@ function keydown(e) {
             setToolOption('q');
         } else if (String.fromCharCode(evtobj.keyCode)=='A' && tool=='path') {
             setToolOption('a');
+        } else if (e.code == 'ArrowLeft' && toolXY[0] >= grid) {
+            e.preventDefault();
+            toolXY[0] = toolXY[0]-grid;
+            mousePreview('',toolXY[0],toolXY[1])
+        } else if (e.code == 'ArrowUp' && toolXY[1] >= grid) {
+            e.preventDefault();
+            toolXY[1] = toolXY[1]-grid;
+            mousePreview('',toolXY[0],toolXY[1])
+        } else if (e.code == 'ArrowRight') {
+            e.preventDefault();
+            toolXY[0] = toolXY[0]+grid;
+            mousePreview('',toolXY[0],toolXY[1])
+        } else if (e.code == 'ArrowDown') {
+            e.preventDefault();
+            toolXY[1] = toolXY[1]+grid;
+            mousePreview('',toolXY[0],toolXY[1])
+        } else if (e.code == 'Space') {
+            e.preventDefault();
+            draw('',toolXY[0],toolXY[1])
         }
     }
 }
@@ -853,13 +871,13 @@ function keydown(e) {
         <li><s>arc in paths</s> done</li>
         <li><s>cubic bezier?</s> (not planned anymore)</li>
         <li><s>previews with mousemove?</s></li>
-        <li>draw (paths) with arrow-keys and space (=click)? -> maybe some day, will move to a feature-request on going stable</li>
+        <li><s>draw (paths) with arrow-keys and space (=click)? -> maybe some day, will move to a feature-request on going stable</s> done</li>
         <li><s>symbols like arrow-heads</s> (not planned anymore)</li>
         <li><s>mdTeX in text-elements?</s> would need a server; And some elements like &Delta;&lambda; can be created with html-codes (<code>&</code><code>Delta</code><code>;</code>...) as well.</li>
     </ul>
 
 <hr />
-<p>PolarSVGedit v0.9.1dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.9.2 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
