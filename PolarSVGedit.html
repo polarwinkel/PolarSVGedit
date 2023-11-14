@@ -124,6 +124,7 @@ div#svgBox {
     <hr style="clear:both;"/>
     <ul>
         <li>select tool with underlined key</li>
+        <li>draw with arrow-keys and space after setting startpoint</a></li>
         <li>refresh page for a fresh start (loosing all unsaved changes!)</li>
         <li><code>ctrl+z</code> will <a onclick="undo()" style="text-decoration: underline;">undo your last change</a>(s)</li>
         <li><code>ctrl+s</code> will <a onclick="save()" style="text-decoration: underline;">download your SVG as a file</a></li>
@@ -215,6 +216,7 @@ function setToolOption(o) {
 function setTool(t) {
     // set tool to be used ('path', 'ellipse', 'text' or '' for none)
     tool = t;
+    toolXY = [0,0];
     let i=1;
     if (t=='path') {
         document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.6)';
@@ -282,6 +284,7 @@ function setTool(t) {
         document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.3)';
         setToolOption('');
+        toolXY = [-1,-1];
     }
     oldXY = [0,0];
     mousePreviewClear()
