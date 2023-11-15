@@ -47,7 +47,7 @@ div#svgBox {
 <body onload="load()"  onkeydown="keydown(event)">
     <h1>PolarSVGedit</h1>
     <div id="options" style="background-color:rgba(127,127,255,0.3); display: flex; flex-flow: row wrap;">
-        <h3 style="flex-basis: 100%; margin:0.3em;">Options: </h3>
+        <h3 style="flex-basis: 100%; margin:0.3em;">Options:</h3>
         <div style="background-color:rgba(127,127,255,0.3); margin:0.3em; padding:0.3em; display: flex; flex-flow: row wrap;">
             <div>
                 <label for="width">width:</label>
@@ -57,38 +57,45 @@ div#svgBox {
                 <button onclick="setSvgSize()">set SVG-size</button>
             </div>&nbsp;&nbsp;|&nbsp;&nbsp;
             <div>
-                <label for="snapGrid">snap-grid: </label>
+                <label for="snapGrid">snap-grid:</label>
                 <input type="radio" id="grid40" name="snapGrid" onchange="setGrid(40)" />
-                <label for="grid20">40 </label>
+                <label for="grid20">40</label>
                 <input type="radio" id="grid20" name="snapGrid" onchange="setGrid(20)" />
-                <label for="grid20">20 </label>
+                <label for="grid20">20</label>
                 <input type="radio" id="grid10" name="snapGrid" onchange="setGrid(10)" checked />
-                <label for="grid10">10 </label>
+                <label for="grid10">10</label>
                 <input type="radio" id="grid5" name="snapGrid" onchange="setGrid(5)" />
-                <label for="grid5">5 </label>
+                <label for="grid5">5</label>
                 <input type="radio" id="grid2" name="snapGrid" onchange="setGrid(2)" />
-                <label for="grid1">2 </label>
+                <label for="grid1">2</label>
                 <input type="radio" id="grid1" name="snapGrid" onchange="setGrid(1)" />
-                <label for="grid1">1 </label>
+                <label for="grid1">1</label>
             </div>
         </div>
         <div style="background-color:rgba(127,255,127,0.3); margin:0.3em; padding:0.3em; display: flex; flex-flow: row wrap;">
             <div>
-                <label for="color">stroke: </label>
-                <input type="color" id="color" name="color" value="#000000" onchange="setColor()" />
+                <label for="lineColor">line:</label>
+                <input type="color" id="lineColor" name="lineColor" onchange="setLineColor(this.value)" />
             </div>&nbsp;&nbsp;|&nbsp;&nbsp;
             <div>
-                <label for="strokeWidth">width: </label>
+                <label for="strokeWidth">width:</label>
                 <input type="radio" id="width10" name="strokeWidth" onchange="setWidth(10)" />
-                <label for="width10">10 </label>
+                <label for="width10">10</label>
                 <input type="radio" id="width5" name="strokeWidth" onchange="setWidth(5)" />
-                <label for="width5">5 </label>
+                <label for="width5">5</label>
                 <input type="radio" id="width3" name="strokeWidth" onchange="setWidth(3)" checked />
-                <label for="width3">3 </label>
+                <label for="width3">3</label>
                 <input type="radio" id="width2" name="strokeWidth" onchange="setWidth(2)" />
-                <label for="width2">2 </label>
+                <label for="width2">2</label>
                 <input type="radio" id="width1" name="strokeWidth" onchange="setWidth(1)" />
-                <label for="width1">1 </label>
+                <label for="width1">1</label>
+                <input type="radio" id="width0" name="strokeWidth" onchange="setWidth(0)" />
+                <label for="width1">0</label>
+            </div>
+            <div>&nbsp;&nbsp;|&nbsp;&nbsp;
+                <label for="innerC">inner:</label>
+                <input type="checkbox" id="innerC" name="innerC" onchange="setInnerColor(this.checked)" />
+                <input type="color" id="innerColor" name="innerColor" onchange="setInnerColor(this.value)" />
             </div>
         </div>
     </div>
@@ -137,16 +144,16 @@ var svgBox = document.getElementById('svgBox');
 var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 var svgOld = [];
 var svgCode = document.getElementById('svgCode');
-var grid = 10
+var grid = '10'
 var actObj = null;
-var color = 'black';
-var fill = 'none';
+var strokeWidth = '3';
+var fontSize = '20';
+var lineColor = '#000000';
+var innerColor = 'none';
 var tool = '';
 var toolOption = '';
 var oldXY = [0,0];
 var toolXY = [-1,-1];
-var strokeWidth = 3;
-var fontSize = 20;
 function setSvgSize() {
     // set size of new or existing svg
     let width = document.getElementById('width').value;
@@ -166,22 +173,49 @@ function setSvgSize() {
 function load() {
     // init default settings
     setSvgSize();
-    document.getElementById('grid10').checked = true;
-    document.getElementById('width3').checked = true;
-    document.getElementById('color').value = '#000';
+    document.getElementById('grid'+grid).checked = true;
+    document.getElementById('width'+strokeWidth).checked = true;
+    document.getElementById('lineColor').value = lineColor;
+    if (innerColor == 'none') {
+        document.getElementById('innerC').checked = false;
+        document.getElementById('innerColor').value = '#ffffff';
+    } else {
+        document.getElementById('innerC').checked = true;
+        document.getElementById('innerColor').value = innerColor;
+    }
 }
 function setGrid(g) {
     // set snapping grid size
     grid = g;
 }
-function setColor() {
-    // set brush color for active and new objects
-    color = document.getElementById('color').value;
+function setLineColor() {
+    // set line color for active and new objects
+    lineColor = document.getElementById('lineColor').value;
     if (actObj != null) {
         if ((actObj.nodeName == 'path') || (actObj.nodeName == 'ellipse')) {
-            actObj.setAttribute('stroke', color);
+            actObj.setAttribute('stroke', lineColor);
         } else if ((actObj.nodeName == 'text')) {
-            actObj.setAttribute('fill', color);
+            actObj.setAttribute('fill', lineColor);
+        }
+    }
+}
+function setInnerColor(value) {
+    // set fill color for active and new drawing objects
+    console.log(value)
+    if (value == true) {
+        document.getElementById('innerC').checked = true;
+        innerColor = document.getElementById('innerColor').value;
+    } else if (value == false) {
+        innerColor = 'none';
+        document.getElementById('innerC').checked = false;
+    } else {
+        innerColor = value;
+        document.getElementById('innerColor').value = value;
+        document.getElementById('innerC').checked = true;
+    }
+    if (actObj != null) {
+        if ((actObj.nodeName == 'path') || (actObj.nodeName == 'ellipse')) {
+            actObj.setAttribute('fill', innerColor);
         }
     }
 }
@@ -226,9 +260,9 @@ function setTool(t) {
         actObj = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         while (document.getElementById('path'+i)!=null) i++;
         actObj.setAttribute('id', 'path'+i);
-        actObj.setAttribute('stroke', color);
+        actObj.setAttribute('stroke', lineColor);
         actObj.setAttribute('stroke-width', strokeWidth);
-        actObj.setAttribute('fill', fill);
+        actObj.setAttribute('fill', innerColor);
         document.getElementById('objectName').value = actObj.id;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<input type="radio" id="pathM" name="pathOption" onchange="setToolOption(`m`)" checked />';
@@ -253,9 +287,9 @@ function setTool(t) {
         actObj = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
         while (document.getElementById('ellipse'+i)!=null) i++;
         actObj.setAttribute('id', 'ellipse'+i);
-        actObj.setAttribute('stroke', color);
+        actObj.setAttribute('stroke', lineColor);
         actObj.setAttribute('stroke-width', strokeWidth);
-        actObj.setAttribute('fill', fill);
+        actObj.setAttribute('fill', innerColor);
         document.getElementById('objectName').value = actObj.id;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<i>First click: center, next click(s): bounding-corner</i>';
@@ -269,7 +303,7 @@ function setTool(t) {
         while (document.getElementById('text'+i)!=null) i++;
         actObj.setAttribute('id', 'text'+i);
         actObj.setAttribute('text-anchor', 'right');
-        actObj.setAttribute('fill', color);
+        actObj.setAttribute('fill', lineColor);
         actObj.setAttribute('font-size', fontSize);
         document.getElementById('objectName').value = actObj.id;
         let tO = document.getElementById('toolOptions');
@@ -327,12 +361,12 @@ function objectSelect(oId) {
     setTool('');
     oldXY = [0,0];
     if (actObj.nodeName == 'path' || actObj.nodeName == 'ellipse') {
-        color = actObj.getAttribute('stroke'); // actObj.stroke works only with html-objects
+        lineColor = actObj.getAttribute('stroke'); // actObj.stroke works only with html-objects
     } else if (actObj.nodeName = 'text') {
         document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[2].style.backgroundColor = 'rgba(127,255,127,0.6)';
-        color = actObj.getAttribute('fill');
+        lineColor = actObj.getAttribute('fill');
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<input type="text" id="textContens" value="'+actObj.innerHTML+'" /> | ';
         tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+actObj.getAttribute('font-size')+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
@@ -341,7 +375,7 @@ function objectSelect(oId) {
         tool = 'text';
         toolOption = 'text';
     }
-    document.getElementById('color').value = color;
+    document.getElementById('lineColor').value = lineColor;
 }
 function drawPath(x, y, z) {
     // draw path with path-tool
@@ -570,6 +604,7 @@ function svgPreview() {
         if (errorNode) {
             console.log(errorNode);
         } else {
+            svgOld.push(svg.innerHTML);
             svg.innerHTML = svgNewDoc.documentElement.innerHTML;
             svgBox.replaceChild(svg, svgBox.firstChild);
         }
