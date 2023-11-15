@@ -122,9 +122,10 @@ div#svgBox {
         <textarea id="svgCode" oninput="svgPreview()"></textarea>
     </div>
     <hr style="clear:both;"/>
+    <h2>(key-)controls</h2>
     <ul>
         <li>select tool with underlined key</li>
-        <li>draw with arrow-keys and space after setting startpoint</a></li>
+        <li>draw with arrow-keys and space, <a onclick="draw('','','',true)" style="text-decoration: underline;">close path with z</a></li>
         <li>refresh page for a fresh start (loosing all unsaved changes!)</li>
         <li><code>ctrl+z</code> will <a onclick="undo()" style="text-decoration: underline;">undo your last change</a>(s)</li>
         <li><code>ctrl+s</code> will <a onclick="save()" style="text-decoration: underline;">download your SVG as a file</a></li>
@@ -342,7 +343,7 @@ function objectSelect(oId) {
     }
     document.getElementById('color').value = color;
 }
-function drawPath(x, y) {
+function drawPath(x, y, z) {
     // draw path with path-tool
     let path = actObj;
     let pathNew = path;
@@ -351,6 +352,11 @@ function drawPath(x, y) {
     if (!path.hasAttribute('d')) {
         path.setAttribute('d', 'M '+x+','+y);
         oldXY = [x,y];
+    }
+    // close path
+    else if (z) {
+        pathNew.setAttribute('d', path.getAttribute('d')+' z');
+        setTool('');
     }
     // m: Move To:
     else if (toolOption=='m') {
@@ -572,7 +578,7 @@ function svgPreview() {
     }
     //document.getElementById('svgView').innerHTML = svg;
 }
-function draw(e, x=-1, y=-1) {
+function draw(e, x=-1, y=-1, z=false) {
     // draw-event on mouse-click in svg-box
     let created = false;
     if (actObj == null) {
@@ -590,7 +596,7 @@ function draw(e, x=-1, y=-1) {
     toolXY = [x,y];
     svgOld.push(svg.innerHTML);
     if (tool=='path') {
-        drawPath(x, y);
+        drawPath(x, y, z);
     } else if (tool=='ellipse') {
         drawEllipse(x, y);
     } else if (tool=='text') {
@@ -661,6 +667,8 @@ function keydown(e) {
             setToolOption('q');
         } else if (String.fromCharCode(evtobj.keyCode)=='A' && tool=='path') {
             setToolOption('a');
+        } else if (String.fromCharCode(evtobj.keyCode)=='Z' && tool=='path') {
+            draw('', '', '', z=true);
         } else if (e.code == 'ArrowLeft' && toolXY[0] >= grid) {
             e.preventDefault();
             toolXY[0] = toolXY[0]-grid;
@@ -880,7 +888,7 @@ function keydown(e) {
     </ul>
 
 <hr />
-<p>PolarSVGedit v0.9.2 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.9.2dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
