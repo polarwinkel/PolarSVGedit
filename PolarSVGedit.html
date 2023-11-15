@@ -203,7 +203,6 @@ function setLineColor() {
 }
 function setInnerColor(value) {
     // set fill color for active and new drawing objects
-    console.log(value)
     if (value == true) {
         document.getElementById('innerC').checked = true;
         innerColor = document.getElementById('innerColor').value;
@@ -367,6 +366,7 @@ function objectSelect(oId) {
     oldXY = [0,0];
     if (actObj.nodeName == 'path' || actObj.nodeName == 'ellipse') {
         lineColor = actObj.getAttribute('stroke'); // actObj.stroke works only with html-objects
+        innerColor = actObj.getAttribute('fill');
     } else if (actObj.nodeName = 'text') {
         document.getElementsByClassName('aTool')[0].style.backgroundColor = 'rgba(127,255,127,0.3)';
         document.getElementsByClassName('aTool')[1].style.backgroundColor = 'rgba(127,255,127,0.3)';
@@ -381,8 +381,30 @@ function objectSelect(oId) {
         toolOption = 'text';
     }
     document.getElementById('lineColor').value = lineColor;
+    if (innerColor == 'none') {
+        document.getElementById('innerC').checked = false;
+        document.getElementById('innerColor').value = innerColor;
+    } else {
+        document.getElementById('innerC').checked = true;
+        document.getElementById('innerColor').value = innerColor;
+    }
+    // flash once:
+    if (actObj.nodeName == 'path' || actObj.nodeName == 'ellipse') {
+        actObj.setAttribute('stroke', '#f00');
+        actObj.setAttribute('fill', '#0a0');
+        setTimeout(() => {
+                    actObj.setAttribute('stroke', lineColor);
+                    actObj.setAttribute('fill', innerColor);
+                }, 700);
+    } else if (actObj.nodeName == 'text') {
+        actObj.setAttribute('fill', '#f00');
+        setTimeout(() => {
+                    actObj.setAttribute('fill', lineColor);
+                }, 700);
+    }
 }
 function deleteActive() {
+    // delete active object
     mousePreviewClear();
     svg.removeChild(actObj);
     document.getElementById('objectName').value = null;
@@ -558,7 +580,7 @@ function mousePreview(e, px=-1, py=-1) {
                 }
             }
             // l: Line To:
-            else {
+            else if (toolOption=='l') {
                 pre.setAttribute('d', 'M '+oldXY[0]+','+oldXY[1]+' L '+px+','+py);
             }
         }
@@ -775,7 +797,6 @@ function keydown(e) {
             mousePreview('',toolXY[0],toolXY[1])
         } else if (e.code == 'ArrowUp' && toolXY[1] >= grid) {
             e.preventDefault();
-            console.log(toolXY);
             toolXY[1] = toolXY[1]-grid;
             mousePreview('',toolXY[0],toolXY[1])
         } else if (e.code == 'ArrowRight') {
@@ -904,7 +925,7 @@ function keydown(e) {
             <td><svg>
 <defs>
     <marker id="arrow" markerWidth="5" markerHeight="6" refX="4" refY="3" orient="auto-start-reverse">
-        <polygon points="0 0,5 3,0 6, 2 3"/>
+        <polygon points="0 0,5 3,0 6, 2 3" fill="#f00" />
     </marker>
 </defs>
 <line x1="0" y1="20" x2="50" y2="20" stroke="#0a0" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/></xmp>
@@ -912,7 +933,7 @@ function keydown(e) {
             <td>
 <xmp><defs>
     <marker id="arrow" markerWidth="5" markerHeight="6" refX="4" refY="3" orient="auto-start-reverse">
-        <polygon points="0 0,5 3,0 6, 2 3"/>
+        <polygon points="0 0,5 3,0 6, 2 3" fill="#f00" />
     </marker>
 </defs>
 <line x1="0" y1="50" x2="250" y2="50" stroke="#0a0" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/></xmp>
@@ -960,7 +981,7 @@ function keydown(e) {
     </mrow></math>
 </foreignObject></xmp>
             </td>
-            <td>The MathML-Code can be created with the mdTeX-Cheatsheet</td>
+            <td>The MathML-Code can i.e. be created with mdTeX2html</td>
         </tr>
     </table>
 </details>
