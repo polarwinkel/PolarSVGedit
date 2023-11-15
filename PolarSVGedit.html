@@ -44,7 +44,7 @@ div#svgBox {
 }
     </style>
 </head>
-<body onload="load()"  onkeydown="keydown(event)">
+<body onload="init()"  onkeydown="keydown(event)">
     <h1>PolarSVGedit</h1>
     <div id="options" style="background-color:rgba(127,127,255,0.3); display: flex; flex-flow: row wrap;">
         <h3 style="flex-basis: 100%; margin:0.3em;">Options:</h3>
@@ -110,8 +110,8 @@ div#svgBox {
         </div>
         <div style="background-color:rgba(127,255,127,0.3); margin:0.3em; padding:0.3em; display: flex; flex-flow: row wrap;">
             <div>
-                <label for="objectName" placeholder="(unique id)">object id: </label>
-                <input type="text" id="objectName" name="objectName" onchange="objectName(this.value)" /> | 
+                <label for="objectName">object id: </label>
+                <input type="text" id="objectName" name="objectName" placeholder="(unique id)" onchange="objectName(this.value)" /> | 
                 <label for="objectSelect">objects: </label>
                 <select id="objectSelect" name="objectSelect" onchange="objectSelect(this.value)">
                     <option value="">edit attributes:</option>
@@ -124,9 +124,9 @@ div#svgBox {
         <i>(Tool-Options)</i>
     </div>
     <div id="container">
-        <div id="svgBox" onclick="draw(event)" onmousemove="mousePreview(event)" onmouseleave="mousePreviewClear()">
+        <div id="svgBox" onclick="draw(event)" oncontextmenu="drawDone(event)" onmousemove="mousePreview(event)" onmouseleave="mousePreviewClear()">
         </div>
-        <textarea id="svgCode" oninput="svgPreview()"></textarea>
+        <textarea id="svgCode" oninput="svgTypingPreview()"></textarea>
     </div>
     <hr style="clear:both;"/>
     <h2>(key-)controls</h2>
@@ -135,7 +135,8 @@ div#svgBox {
         <li>draw with arrow-keys and space, <a onclick="draw('','','',true)" style="text-decoration: underline;">close path with z</a></li>
         <li>refresh page for a fresh start (loosing all unsaved changes!)</li>
         <li><code>ctrl+z</code> will <a onclick="undo()" style="text-decoration: underline;">undo your last change</a>(s)</li>
-        <li><code>ctrl+s</code> will <a onclick="save()" style="text-decoration: underline;">download your SVG as a file</a></li>
+        <li><code>ctrl+o</code> will <a onclick="loadFromFile()" style="text-decoration: underline;">load SVG-code from a file</a></li>
+        <li><code>ctrl+s</code> will <a onclick="saveToFile()" style="text-decoration: underline;">download your SVG as a file</a></li>
     </ul>
     <hr style="clear:both;" />
     
@@ -144,9 +145,9 @@ var svgBox = document.getElementById('svgBox');
 var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 var svgOld = [];
 var svgCode = document.getElementById('svgCode');
-var grid = '10'
+var grid = 10
 var actObj = null;
-var strokeWidth = '3';
+var strokeWidth = 3;
 var fontSize = '20';
 var lineColor = '#000000';
 var innerColor = 'none';
@@ -170,11 +171,11 @@ function setSvgSize() {
     svgBox.appendChild(svg);
     svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
 }
-function load() {
+function init() {
     // init default settings
     setSvgSize();
-    document.getElementById('grid'+grid).checked = true;
-    document.getElementById('width'+strokeWidth).checked = true;
+    document.getElementById('grid'+grid.toString()).checked = true;
+    document.getElementById('width'+strokeWidth.toString()).checked = true;
     document.getElementById('lineColor').value = lineColor;
     if (innerColor == 'none') {
         document.getElementById('innerC').checked = false;
@@ -183,10 +184,11 @@ function load() {
         document.getElementById('innerC').checked = true;
         document.getElementById('innerColor').value = innerColor;
     }
+    document.getElementById('objectName').value = null;
 }
 function setGrid(g) {
     // set snapping grid size
-    grid = g;
+    grid = parseInt(g);
 }
 function setLineColor() {
     // set line color for active and new objects
@@ -570,6 +572,11 @@ function mousePreview(e, px=-1, py=-1) {
             if (pry==0) pry=strokeWidth/2;
             pre.setAttribute('rx', prx);
             pre.setAttribute('ry', pry);
+        } else {
+            pre.setAttribute('cx', px);
+            pre.setAttribute('cy', py);
+            pre.setAttribute('rx', '2');
+            pre.setAttribute('ry', '2');
         }
     }
     else if (tool == 'text') {
@@ -594,7 +601,7 @@ function mousePreviewClear() {
         svg.removeChild(preview);
     }
 }
-function svgPreview() {
+function svgTypingPreview() {
     // shows the svg if possible upon code edits
     let parser = new DOMParser();
     let svgcode = document.getElementById('svgCode').value;
@@ -652,6 +659,10 @@ function draw(e, x=-1, y=-1, z=false) {
     svgBox.replaceChild(svg, svgBox.firstChild);
     svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
 }
+function drawDone(e) {
+    if (e) { e.preventDefault(); }
+    setTool('');
+}
 function undo() {
     // undo the latest change on active object; will deselect active tool due to missing coordinates to continue drawing
     let innerHTML = svgOld.pop();
@@ -664,7 +675,46 @@ function undo() {
         svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
     }
 }
-function save() {
+function loadFromFile() {
+  let input = document.createElement('input');
+  input.type = 'file';
+  input.onchange = _ => {
+            let file = Array.from(input.files)[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = function (evt) {
+                    try{
+                        let parser = new DOMParser();
+                        let svgNewDoc = parser.parseFromString(evt.target.result, 'image/svg+xml');
+                        let svgcode = svgNewDoc.documentElement.innerHTML;
+                        const errorNode = svgNewDoc.querySelector('parsererror');
+                        if (errorNode) {
+                            alert('Error reading file');
+                            console.log(errorNode);
+                            return;
+                        } else {
+                            svgOld.push(svg.innerHTML);
+                            svg.innerHTML = svgNewDoc.documentElement.innerHTML;
+                            svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
+                            svgBox.replaceChild(svg, svgBox.firstChild);
+                        }
+                    } catch (error) {
+                        alert('Error reading file');
+                        console.log(error);
+                        return;
+                    }
+                }
+                reader.onerror = function (evt) {
+                    alert('Error reading file');
+                    return;
+                }
+            }
+            
+        };
+  input.click();
+}
+function saveToFile() {
     // save svg-file to client
     var base64doc = btoa(unescape(encodeURIComponent(svg.outerHTML))),
         a = document.createElement('a'),
@@ -678,9 +728,12 @@ function keydown(e) {
     var evtobj = window.event? event : e
     if (evtobj.keyCode == 90 && evtobj.ctrlKey) {
         undo();
+    } else if (String.fromCharCode(evtobj.keyCode)=='O' && evtobj.ctrlKey) {
+        e.preventDefault();
+        loadFromFile();
     } else if (String.fromCharCode(evtobj.keyCode)=='S' && evtobj.ctrlKey) {
         e.preventDefault();
-        save();
+        saveToFile();
     } else if ( // keep key-functions if needed i.e. for typing
             (document.activeElement != document.getElementById('textContens')) && 
             (document.activeElement != document.getElementById('svgCode')) && 
@@ -710,6 +763,7 @@ function keydown(e) {
             mousePreview('',toolXY[0],toolXY[1])
         } else if (e.code == 'ArrowUp' && toolXY[1] >= grid) {
             e.preventDefault();
+            console.log(toolXY);
             toolXY[1] = toolXY[1]-grid;
             mousePreview('',toolXY[0],toolXY[1])
         } else if (e.code == 'ArrowRight') {
@@ -723,6 +777,9 @@ function keydown(e) {
         } else if (e.code == 'Space') {
             e.preventDefault();
             draw('',toolXY[0],toolXY[1])
+        } else if (e.code == 'Enter') {
+            e.preventDefault(e);
+            drawDone();
         }
     }
 }
