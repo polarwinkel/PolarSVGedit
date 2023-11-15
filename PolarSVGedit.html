@@ -116,7 +116,7 @@ div#svgBox {
                 <select id="objectSelect" name="objectSelect" onchange="objectSelect(this.value)">
                     <option value="">edit attributes:</option>
                 </select>
-                <button onclick="alert('TODO: implement this; delete objects in the code for now!')">delete</button>
+                <button onclick="deleteActive()">delete</button>
             </div>
         </div>
     </div>
@@ -266,6 +266,7 @@ function setTool(t) {
         actObj.setAttribute('stroke-width', strokeWidth);
         actObj.setAttribute('fill', innerColor);
         document.getElementById('objectName').value = actObj.id;
+        document.getElementById('objectSelect').value = null;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<input type="radio" id="pathM" name="pathOption" onchange="setToolOption(`m`)" checked />';
         tO.innerHTML += '<label for="pathM"><u>M</u>ove To</label> | ';
@@ -293,6 +294,7 @@ function setTool(t) {
         actObj.setAttribute('stroke-width', strokeWidth);
         actObj.setAttribute('fill', innerColor);
         document.getElementById('objectName').value = actObj.id;
+        document.getElementById('objectSelect').value = null;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<i>First click: center, next click(s): bounding-corner</i>';
         toolOption = '';
@@ -308,6 +310,7 @@ function setTool(t) {
         actObj.setAttribute('fill', lineColor);
         actObj.setAttribute('font-size', fontSize);
         document.getElementById('objectName').value = actObj.id;
+        document.getElementById('objectSelect').value = null;
         let tO = document.getElementById('toolOptions');
         tO.innerHTML = '<input type="text" id="textContens" placeholder="text" /> | ';
         tO.innerHTML += '<input type="range" id="fontSize" onchange="setFontSize(this.value)" value="'+fontSize+'" min="8" max="64" oninput="this.nextElementSibling.value = this.value">';
@@ -378,6 +381,17 @@ function objectSelect(oId) {
         toolOption = 'text';
     }
     document.getElementById('lineColor').value = lineColor;
+}
+function deleteActive() {
+    mousePreviewClear();
+    svg.removeChild(actObj);
+    document.getElementById('objectName').value = null;
+    let sel = document.getElementById('objectSelect');
+    for (let i=0; i<sel.length; i++) {
+        if (sel.options[i].value == actObj.id)
+            sel.remove(i);
+    }
+    svgCode.value = svg.outerHTML.replaceAll('>', '>\n').replaceAll('\n\n', '\n'); // micro-tidy
 }
 function drawPath(x, y, z) {
     // draw path with path-tool
@@ -466,7 +480,6 @@ function drawEllipse(x, y) {
         if (ry==0) ry=strokeWidth/2;
         ellipse.setAttribute('rx', rx);
         ellipse.setAttribute('ry', ry);
-        setTool('ellipse');
     }
 }
 function drawText(x, y) {
@@ -478,7 +491,6 @@ function drawText(x, y) {
         text.setAttribute('y', y);
         text.setAttribute('font-size', fontSize);
         text.innerHTML = t;
-        setTool('text');
     }
 }
 function mousePreview(e, px=-1, py=-1) {
@@ -980,7 +992,7 @@ function keydown(e) {
     </ul>
 
 <hr />
-<p>PolarSVGedit v0.9.2dev - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
+<p>PolarSVGedit v0.9.3 - (c) 2023 by Dirk Winkel - Licenced under GPL v3 or newer</p>
 
 </body>
 
